@@ -8,6 +8,7 @@ import android.widget.CheckBox
 import androidx.appcompat.app.AppCompatActivity
 import com.google.gson.Gson
 import com.orhanobut.hawk.Hawk
+import com.orhanobut.hawk.HawkBuilder
 
 class ControlActivity : AppCompatActivity() {
 
