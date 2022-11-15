@@ -24,8 +24,9 @@ class ControlActivity : AppCompatActivity() {
         val edFriends : CheckBox = findViewById(R.id.ed_friends)
         val btnReset : Button = findViewById(R.id.btn_reset)
         val btnOpenWechat : Button = findViewById(R.id.btn_open_wechat)
-        val btnOpenAccessbility : Button = findViewById(R.id.btn_open_accessbility)
+        val btnOpenAccessbility : Button = findViewById(R.id.btn_open_accessibility)
         val cbAddFriends : CheckBox = findViewById(R.id.cb_add_friends)
+        val groupCharge : CheckBox = findViewById(R.id.group_charge)
 
         cbFriendsSquare.isChecked = Hawk.get(Constant.FRIEND_SQUARE,false)
 
@@ -56,6 +57,10 @@ class ControlActivity : AppCompatActivity() {
 
         cbFriendsSquare.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) Hawk.put(Constant.FRIEND_SQUARE, true) else Hawk.put(Constant.FRIEND_SQUARE, false)
+        }
+
+        groupCharge.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) Hawk.put(Constant.GROUP_CHARGE, true) else Hawk.put(Constant.GROUP_CHARGE, false)
         }
     }
 

@@ -12,6 +12,7 @@ import android.os.Looper
 import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
+import androidx.collection.arrayMapOf
 import com.orhanobut.hawk.Hawk
 
 class SuperService : AccessibilityService() {
@@ -40,6 +41,8 @@ class SuperService : AccessibilityService() {
                         "com.tencent.mm.ui.contact.SelectContactUI" -> addMembers()
                     }
                 }
+                if (Hawk.get(Constant.GROUP_CHARGE,false))
+                    groupCharge()
                 if (className == "com.tencent.mm.ui.widget.a.c") {
                     dialogClick()
                 }
@@ -305,6 +308,86 @@ class SuperService : AccessibilityService() {
         }
     }
 
+    private fun groupCharge() {
+        var nodeInfo = rootInActiveWindow
+        var groupName = " "
+        if (nodeInfo != null) {
+            groupName = nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/ko4")[0].text.toString()
+        }
+        if(groupName.contains("(")) groupName = groupName.substringBeforeLast('(')
+//        performBackClick()
+//        Thread.sleep(10000)
+        val map = mapOf("com.tencent.mm:id/g0" to 0,"com.tencent.mm:id/grs" to 0,"com.tencent.mm:id/iwc" to 3)
+        for(pair in map) {
+            nodeInfo = rootInActiveWindow
+            if (nodeInfo != null) {
+                println(pair)
+                nodeInfo.findAccessibilityNodeInfosByViewId(pair.key)[pair.value].performAction(
+                    AccessibilityNodeInfo.ACTION_CLICK
+                )
+            }
+            Thread.sleep(1000)
+        }
+
+        Thread.sleep(1000)
+        nodeInfo = rootInActiveWindow
+        if(nodeInfo != null) {
+            nodeInfo.findAccessibilityNodeInfosByText("群收款")[0].performAction(
+                AccessibilityNodeInfo.ACTION_CLICK
+            )
+        }
+        Thread.sleep(1000)
+        nodeInfo = rootInActiveWindow
+        if (nodeInfo != null) {
+            nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/fis")[0].performAction(
+                AccessibilityNodeInfo.ACTION_CLICK
+            )
+        }
+
+        Thread.sleep(1000)
+        nodeInfo = rootInActiveWindow
+        if (nodeInfo != null) {
+            nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/krs")[0].performAction(
+                AccessibilityNodeInfo.ACTION_CLICK
+            )
+        }
+
+        Thread.sleep(1000)
+        nodeInfo = rootInActiveWindow
+        if (nodeInfo != null) {
+            nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/ev2")[0].performAction(
+                AccessibilityNodeInfo.ACTION_CLICK
+            )
+        }
+        Thread.sleep(1000)
+
+//        if (nodeInfo != null) {
+//            nodeInfo.findAccessibilityNodeInfosByText(groupName)[0].parent.performAction(
+//                AccessibilityNodeInfo.ACTION_CLICK
+//            )
+//        }
+        nodeInfo = rootInActiveWindow
+        if(nodeInfo != null) {
+            val target = nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/cd7")[0]
+            val arguments = Bundle()
+            arguments.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE,groupName)
+            target.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT,arguments)
+        }
+        Thread.sleep(1000)
+
+        val cbNodes = rootInActiveWindow.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/kpm")
+        if (cbNodes != null) {
+            val cbNode: AccessibilityNodeInfo?
+            if (cbNodes.size > 0) {
+                cbNode = cbNodes[0]
+                val parent = cbNode.parent
+                parent.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                parent.performAction(AccessibilityNodeInfo.ACTION_LONG_CLICK)
+            }
+        }
+
+    }
+
     //遍历控件的方法
     fun recycle(info: AccessibilityNodeInfo) {
         if (info.childCount == 0) {
@@ -324,4 +407,6 @@ class SuperService : AccessibilityService() {
         handler.postDelayed({ performGlobalAction(AccessibilityService.GLOBAL_ACTION_BACK) }, 1300L)
         Log.e(TAG, "点击返回")
     }
+
+
 }
