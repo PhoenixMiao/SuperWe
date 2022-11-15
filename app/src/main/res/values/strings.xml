@@ -8,8 +8,9 @@
     <string name="data_reset">重置数据</string>
     <string name="open_wechat">打开微信</string>
     <string name="friends_square">朋友圈自动点赞</string>
-    <string name="open_accessibility">启动程序</string>
+    <string name="open_accessibility">打开无障碍模式</string>
     <string name="todo">TODO</string>
     <string name="btn_write">写入数据</string>
     <string name="superwe">SuperWe</string>
+    <string name="group_charge">打开群收款</string>
 </resources>
