@@ -18,12 +18,13 @@
             android:layout_weight="1"
             android:text="@string/superwe"
             android:textColor="#fff"
-            android:textSize="30sp"
+            android:textSize="20sp"
             android:textAlignment="center"
             android:background="@drawable/ic_launcher_background"/>
 
+
         <view class="androidx.appcompat.widget.AppCompatCheckBox"
-            android:id="@+id/cb_add_friends"
+            android:id="@+id/cb_invite_friends_into_group"
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_weight="1"
@@ -31,72 +32,182 @@
             android:layout_marginTop="10dp"
             android:text="@string/add_friends" />
 
-        <view class="androidx.appcompat.widget.AppCompatCheckBox"
-            android:id="@+id/ed_friends"
+        <view class="androidx.appcompat.widget.AppCompatEditText"
+            android:id="@+id/edit_group"
             android:layout_width="wrap_content"
             android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_weight="1.5"
+            android:layout_marginStart="13dp"
             android:layout_marginEnd="10dp"
-            android:layout_marginStart="10dp"
-            android:text="@string/input_group_friends_hint" />
+            android:hint="@string/group_name"/>
+
+        <view class="androidx.appcompat.widget.AppCompatEditText"
+            android:id="@+id/edit_friends"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1.5"
+            android:layout_marginStart="13dp"
+            android:layout_marginEnd="10dp"
+            android:hint="@string/friends_name"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            >
+
+            <Button
+                android:id="@+id/btn_reset"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginStart="10dp"
+                android:text="@string/data_reset" />
+
+            <Button
+                android:id="@+id/btn_sure"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginStart="10dp"
+                android:text="@string/sure" />
+        </LinearLayout>
 
         <view
-            android:id="@+id/cb_friends_square"
+            android:id="@+id/cb_auto_zan"
+            class="androidx.appcompat.widget.AppCompatCheckBox"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_weight="1"
+            android:text="@string/auto_zan" />
+
+        <view
+            android:id="@+id/cb_lucky_money"
             class="androidx.appcompat.widget.AppCompatCheckBox"
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_weight="1"
             android:layout_marginStart="10dp"
             android:layout_marginTop="10dp"
-            android:text="@string/friends_square" />
+            android:text="@string/auto_receive_lucky_money" />
 
         <view
-            android:id="@+id/group_charge"
+            android:id="@+id/auto_reply"
             class="androidx.appcompat.widget.AppCompatCheckBox"
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_weight="1"
             android:layout_marginStart="10dp"
             android:layout_marginTop="10dp"
-            android:text="@string/group_charge" />
+            android:text="@string/auto_reply" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/auto_reply_content"
+                android:layout_width="280dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="13dp"
+                android:hint="@string/edit_content"
+                android:autofillHints="true"
+                android:inputType="text"/>
+
+            <Button
+                android:id="@+id/content_check"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/check_edit" />
+        </LinearLayout>
+
+        <view
+            android:id="@+id/batch_reply"
+            class="androidx.appcompat.widget.AppCompatCheckBox"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp"
+            android:text="@string/batch_reply" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/batch_reply_content"
+                android:layout_width="280dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="13dp"
+                android:hint="@string/edit_content"
+                android:autofillHints="true"
+                android:inputType="text"/>
+
+            <Button
+                android:id="@+id/content_confirm"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/check_edit" />
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="0dp"
-            android:layout_weight="8"
+            android:layout_weight="10"
             android:orientation="vertical"
             >
-        <Button
-            android:id="@+id/btn_open_accessibility"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:layout_marginStart="10dp"
-            android:text="@string/open_accessibility" />
 
-        <Button
-            android:id="@+id/btn_write"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:layout_marginStart="10dp"
-            android:text="@string/btn_write" />
+            <Button
+                android:id="@+id/btn_open_accessibility"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="1dp"
+                android:layout_marginStart="10dp"
+                android:text="@string/open_accessibility" />
 
-        <Button
-            android:id="@+id/btn_reset"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:layout_marginStart="10dp"
-            android:text="@string/data_reset" />
+            <Button
+                android:id="@+id/btn_open_wechat"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="1dp"
+                android:layout_marginStart="10dp"
+                android:text="@string/open_wechat" />
 
-        <Button
-            android:id="@+id/btn_open_wechat"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:layout_marginStart="10dp"
-            android:text="@string/open_wechat" />
+            <Button
+                android:id="@+id/btn_group_charge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="1dp"
+                android:layout_marginStart="10dp"
+                android:text="@string/group_charge" />
+
+            <Button
+                android:id="@+id/btn_record_action"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="1dp"
+                android:layout_marginStart="10dp"
+                android:text="@string/record_action"/>
+
+            <Button
+                android:id="@+id/btn_repeat_action"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="1dp"
+                android:layout_marginStart="10dp"
+                android:text="@string/repeat_action" />
+
+            <Button
+                android:id="@+id/btn_batch_read"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="1dp"
+                android:layout_marginStart="10dp"
+                android:text="@string/batch_read" />
 
         </LinearLayout>
 

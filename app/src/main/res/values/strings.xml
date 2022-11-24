@@ -7,10 +7,21 @@
     <string name="write_into">写入数据</string>
     <string name="data_reset">重置数据</string>
     <string name="open_wechat">打开微信</string>
-    <string name="friends_square">朋友圈自动点赞</string>
+    <string name="auto_zan">朋友圈自动点赞</string>
     <string name="open_accessibility">打开无障碍模式</string>
     <string name="todo">TODO</string>
     <string name="btn_write">写入数据</string>
     <string name="superwe">SuperWe</string>
     <string name="group_charge">打开群收款</string>
+    <string name="record_action">录入行为</string>
+    <string name="repeat_action">重复行为</string>
+    <string name="group_name">群聊名称</string>
+    <string name="friends_name">好友名称</string>
+    <string name="sure">确定</string>
+    <string name="auto_receive_lucky_money">自动收红包</string>
+    <string name="auto_reply">自动回复</string>
+    <string name="edit_content">请输入回复内容</string>
+    <string name="check_edit">确认</string>
+    <string name="batch_reply">批量回复</string>
+    <string name="batch_read">批量阅读</string>
 </resources>
