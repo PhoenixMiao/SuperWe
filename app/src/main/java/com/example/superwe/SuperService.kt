@@ -103,12 +103,12 @@ class SuperService : AccessibilityService() {
                     Hawk.put(Constant.GROUP_CHARGE,false)
                     isAuto = false
                 }
-//                if(Hawk.get(Constant.BATCH_READ,false)) {
-//                    isAuto = true
-//                    batchRead()
-//                    Hawk.put(Constant.BATCH_READ,false)
-//                    isAuto = false
-//                }
+                if(Hawk.get(Constant.BATCH_READ,false)) {
+                    isAuto = true
+                    batchRead()
+                    Hawk.put(Constant.BATCH_READ,false)
+                    isAuto = false
+                }
                 if(Hawk.get(Constant.BATCH_REPLY,false)) {
                     isAuto = true
                     batchReply()
@@ -572,7 +572,7 @@ class SuperService : AccessibilityService() {
 //                    }
 //                }
             }
-            Thread.sleep(1000000)
+            Thread.sleep(1000)
         }
     }
 
@@ -599,7 +599,7 @@ class SuperService : AccessibilityService() {
 //                    }
 //                }
             }
-            Thread.sleep(1000000)
+            Thread.sleep(1000)
         }
     }
 
