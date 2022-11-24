@@ -23,5 +23,6 @@
     <string name="edit_content">请输入回复内容</string>
     <string name="check_edit">确认</string>
     <string name="batch_reply">批量回复</string>
-    <string name="batch_read">批量阅读</string>
+    <string name="batch_read">批量清除红点</string>
+    <string name="display_window">显示悬浮窗</string>
 </resources>
