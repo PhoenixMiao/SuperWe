@@ -8,16 +8,18 @@ package com.example.superwe
 class Constant {
     companion object {
         val GROUP_NAME ="group_name"
-        val ADD_FRIENDS ="add_friends"
-        val UPDATE_GROUP_PEOPLE ="update_group_people"
         val FRIEND_LIST = "friend_list"
-        val FRIEND_SQUARE ="friend_square"
         val GROUP_CHARGE = "group_charge"
-
-        val MEMBER = "member"
-        val GROUP_NAME_1 = "小猪的Python学习交流1群"
-        val GROUP_NAME_2 = "小猪的Python基友群"
-        val GROUP_NAME_3 = "小猪的Android学习交流群"
-        val GROUP_NAME_5 = "抠腚男孩的妙妙屋"
+        val RECORD_ACTION = "record_action"
+        val REPEAT_ACTION = "repeat_action"
+        val WATCHER = "watcher"
+        val ADDING_FRIENDS_INTO_GROUP ="adding_friends_into_group"
+        val AUTO_ZAN ="auto_zan"
+        val AUTO_RECEIVE_LUCKY_MONEY ="auto_receive_lucky_money"
+        val AUTO_REPLY = "auto_reply"
+        val AUTO_REPLY_CONTENT = "auto_reply_content"
+        val BATCH_REPLY = "batch_reply"
+        val BATCH_REPLY_CONTENT = "batch_reply_content"
+        val BATCH_READ = "batch_reply"
     }
 }
