@@ -18,6 +18,9 @@ import android.widget.TextView
 import com.example.superwe.toast.XToast
 import com.example.superwe.toast.draggable.SpringDraggable
 import com.orhanobut.hawk.Hawk
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 class SuperService : AccessibilityService() {
 
@@ -25,7 +28,7 @@ class SuperService : AccessibilityService() {
     private val handler = Handler()
     private var watcher = arrayListOf<Pair<String?,String?>>()
     private var lastLaunchUI = listOf<AccessibilityNodeInfo>()
-    private var isAuto = false
+    @JvmField var isAuto = false
 
     override fun onServiceConnected() {
         super.onServiceConnected()
@@ -39,6 +42,7 @@ class SuperService : AccessibilityService() {
 
     override fun onInterrupt() {}
 
+    @OptIn(DelicateCoroutinesApi::class)
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
         val eventType = event.eventType
         val classNameChr = event.className
@@ -95,7 +99,15 @@ class SuperService : AccessibilityService() {
             AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED -> {
                 if(className == "com.tencent.mm.ui.LauncherUI") {
                     val nodes = rootInActiveWindow
-                    lastLaunchUI = nodes.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/bth")
+                    if(nodes!=null) lastLaunchUI = nodes.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/bth")
+                }
+                if(Hawk.get(Constant.BATCH_READ,false)) {
+                    isAuto = true
+                    GlobalScope.launch {
+                        groupCharge()
+                        Hawk.put(Constant.GROUP_CHARGE,false)
+                        isAuto = false
+                    }
                 }
                 if(Hawk.get(Constant.REPEAT_ACTION,false)) {
                     isAuto = true
@@ -106,15 +118,11 @@ class SuperService : AccessibilityService() {
                 }
                 if(Hawk.get(Constant.GROUP_CHARGE,false)) {
                     isAuto = true
-                    groupCharge()
-                    Hawk.put(Constant.GROUP_CHARGE,false)
-                    isAuto = false
-                }
-                if(Hawk.get(Constant.BATCH_READ,false)) {
-                    isAuto = true
-                    batchRead()
-                    Hawk.put(Constant.BATCH_READ,false)
-                    isAuto = false
+                    GlobalScope.launch {
+                        groupCharge()
+                        Hawk.put(Constant.GROUP_CHARGE,false)
+                        isAuto = false
+                    }
                 }
                 if(Hawk.get(Constant.BATCH_REPLY,false)) {
                     isAuto = true
@@ -365,7 +373,6 @@ class SuperService : AccessibilityService() {
                 }
             }
         }
-
     }
 
     //对话框自动点击
@@ -431,7 +438,9 @@ class SuperService : AccessibilityService() {
         var nodeInfo = rootInActiveWindow
         var groupName = " "
         if (nodeInfo != null) {
-            groupName = nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/ko4")[0].text.toString()
+            val groups = nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/ko4")
+            if(groups==null || groups.size==0 || groups[0]==null) return
+            groupName = groups[0].text.toString()
         }
         if(groupName.contains("(")) groupName = groupName.substringBeforeLast('(')
 //        performBackClick()
@@ -451,22 +460,18 @@ class SuperService : AccessibilityService() {
         Thread.sleep(1000)
         nodeInfo = rootInActiveWindow
         if(nodeInfo != null) {
-            nodeInfo.findAccessibilityNodeInfosByText("群收款")[0].performAction(
+            val nodes = nodeInfo.findAccessibilityNodeInfosByText("群收款")
+            if(nodes==null || nodes.size==0 || nodes[0]==null) return
+            nodes[0].performAction(
                 AccessibilityNodeInfo.ACTION_CLICK
             )
         }
         Thread.sleep(1000)
         nodeInfo = rootInActiveWindow
         if (nodeInfo != null) {
-            nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/fis")[0].performAction(
-                AccessibilityNodeInfo.ACTION_CLICK
-            )
-        }
-
-        Thread.sleep(1000)
-        nodeInfo = rootInActiveWindow
-        if (nodeInfo != null) {
-            nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/krs")[0].performAction(
+            val nodes = nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/fis")
+            if(nodes==null || nodes.size==0 || nodes[0]==null) return
+            nodes[0].performAction(
                 AccessibilityNodeInfo.ACTION_CLICK
             )
         }
@@ -474,7 +479,19 @@ class SuperService : AccessibilityService() {
         Thread.sleep(1000)
         nodeInfo = rootInActiveWindow
         if (nodeInfo != null) {
-            nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/ev2")[0].performAction(
+            val nodes = nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/krs")
+            if(nodes==null || nodes.size==0 || nodes[0]==null) return
+            nodes[0].performAction(
+                AccessibilityNodeInfo.ACTION_CLICK
+            )
+        }
+
+        Thread.sleep(1000)
+        nodeInfo = rootInActiveWindow
+        if(nodeInfo!=null){
+            val nodes = nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/ev2")
+            if(nodes==null || nodes.size==0 || nodes[0]==null) return
+            nodes[0].performAction(
                 AccessibilityNodeInfo.ACTION_CLICK
             )
         }
@@ -497,6 +514,7 @@ class SuperService : AccessibilityService() {
         rootInActiveWindow.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/j9m")[0].getChild(3).performAction(AccessibilityNodeInfo.ACTION_CLICK)
         Thread.sleep(1000)
 
+        Hawk.put(Constant.GROUP_CHARGE,false)
     }
 
     private fun repeatAction() {

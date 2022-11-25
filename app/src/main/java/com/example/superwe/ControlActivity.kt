@@ -12,12 +12,9 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.example.superwe.toast.XToast
 import com.example.superwe.toast.draggable.SpringDraggable
-import com.google.gson.Gson
 import com.hjq.permissions.OnPermissionCallback
 import com.hjq.permissions.XXPermissions
 import com.orhanobut.hawk.Hawk
-import com.orhanobut.hawk.HawkBuilder
-import java.security.Permission
 
 class ControlActivity : AppCompatActivity() {
 

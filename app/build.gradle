@@ -58,4 +58,6 @@ dependencies {
     implementation 'androidx.test.uiautomator:uiautomator:2.2.0'
     implementation 'com.github.getActivity:XXPermissions:16.2'
     implementation 'com.github.getActivity:ToastUtils:10.5'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.1.1'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.1.1'
 }

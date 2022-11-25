@@ -1,6 +1,8 @@
 package com.example.superwe
 
+import android.annotation.SuppressLint
 import android.app.Application
+import android.content.Context
 import com.google.android.material.shape.ShapePath
 import com.orhanobut.hawk.Hawk
 import kotlin.properties.Delegates
@@ -8,6 +10,8 @@ import kotlin.properties.Delegates
 class SuperApp : Application() {
     companion object {
         var instance by Delegates.notNull<SuperApp>()
+        @SuppressLint("StaticFieldLeak")
+        lateinit var context: Context
     }
 
     override fun onCreate() {
@@ -28,5 +32,6 @@ class SuperApp : Application() {
         Hawk.put(Constant.BATCH_REPLY_CONTENT,"")
         Hawk.put(Constant.BATCH_READ,false)
         Hawk.put(Constant.AUTO_REPLY_CONTENT,"")
+        context = applicationContext
     }
 }
