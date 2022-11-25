@@ -28,7 +28,10 @@ class SuperService : AccessibilityService() {
     private val handler = Handler()
     private var watcher = arrayListOf<Pair<String?,String?>>()
     private var lastLaunchUI = listOf<AccessibilityNodeInfo>()
-    @JvmField var isAuto = false
+    companion object{
+        @JvmField
+        var isAuto = false
+    }
 
     override fun onServiceConnected() {
         super.onServiceConnected()
@@ -101,35 +104,44 @@ class SuperService : AccessibilityService() {
                     val nodes = rootInActiveWindow
                     if(nodes!=null) lastLaunchUI = nodes.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/bth")
                 }
+                if(Hawk.get(Constant.BATCH_REPLY,false)) {
+                    isAuto = true
+                    Hawk.put(Constant.BATCH_REPLY,false)
+                    batchReply()
+                    isAuto = false
+                }
                 if(Hawk.get(Constant.BATCH_READ,false)) {
                     isAuto = true
+                    Hawk.put(Constant.BATCH_READ, false)
                     GlobalScope.launch {
-                        groupCharge()
-                        Hawk.put(Constant.GROUP_CHARGE,false)
+                        batchRead()
                         isAuto = false
                     }
                 }
                 if(Hawk.get(Constant.REPEAT_ACTION,false)) {
                     isAuto = true
                     Hawk.put(Constant.RECORD_ACTION,false)
-                    repeatAction()
                     Hawk.put(Constant.REPEAT_ACTION,false)
-                    isAuto = false
-                }
-                if(Hawk.get(Constant.GROUP_CHARGE,false)) {
-                    isAuto = true
                     GlobalScope.launch {
-                        groupCharge()
-                        Hawk.put(Constant.GROUP_CHARGE,false)
+                        repeatAction()
                         isAuto = false
                     }
                 }
-                if(Hawk.get(Constant.BATCH_REPLY,false)) {
-                    isAuto = true
-                    batchReply()
-                    Hawk.get(Constant.BATCH_REPLY,false)
-                    isAuto = false
+                if(Hawk.get(Constant.GROUP_CHARGE,false)) {
+                    val groups = rootInActiveWindow.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/ko4")
+                    if(groups==null || groups.size==0 || groups[0]==null) {
+                        Hawk.put(Constant.GROUP_CHARGE,false)
+                        shortToast("请进入群聊界面后点击群收款")
+                    } else {
+                        isAuto = true
+                        GlobalScope.launch {
+                            Hawk.put(Constant.GROUP_CHARGE, false)
+                            groupCharge()
+                            isAuto = false
+                        }
+                    }
                 }
+
                 val adding = Hawk.get(Constant.ADDING_FRIENDS_INTO_GROUP, false)
                 if (adding) {
                     isAuto = true
@@ -612,7 +624,7 @@ class SuperService : AccessibilityService() {
 //                for(j in 0 until target.size) {
 //                    if(commu[i] == target[j].parent) {
                 commu[i].performAction(AccessibilityNodeInfo.ACTION_CLICK)
-                Thread.sleep(100)
+                Thread.sleep(1000)
                 val nodes = rootInActiveWindow
                 findEditText(nodes,Hawk.get(Constant.BATCH_REPLY_CONTENT,"test"))
                 Thread.sleep(1000)

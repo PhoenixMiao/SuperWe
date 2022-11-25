@@ -25,4 +25,5 @@
     <string name="batch_reply">批量回复</string>
     <string name="batch_read">批量清除红点</string>
     <string name="display_window">显示悬浮窗</string>
+    <string name="back_to_launcher">返回主页面</string>
 </resources>
