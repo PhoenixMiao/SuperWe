@@ -15,6 +15,7 @@ import com.example.superwe.toast.draggable.SpringDraggable
 import com.hjq.permissions.OnPermissionCallback
 import com.hjq.permissions.XXPermissions
 import com.orhanobut.hawk.Hawk
+import kotlinx.coroutines.delay
 
 class ControlActivity : AppCompatActivity() {
 
@@ -128,6 +129,7 @@ class ControlActivity : AppCompatActivity() {
         btnConfirm.setOnClickListener {
             val contents = batchReplyContent.text.toString()
             Hawk.put(Constant.BATCH_REPLY_CONTENT,contents)
+            Hawk.put(Constant.BATCH_REPLY,true)
             val intent = packageManager.getLaunchIntentForPackage("com.tencent.mm")
             startActivity(intent)
         }
@@ -192,58 +194,57 @@ class ControlActivity : AppCompatActivity() {
             .setGravity(Gravity.END or Gravity.BOTTOM)
             .setYOffset(200)
             .setDraggable(SpringDraggable())
-            .setOnClickListener(R.id.logo, object : XToast.OnClickListener<ImageView?> {
-                override fun onClick(toast: XToast<*>?, view: ImageView?) {
-                    XToast<XToast<*>>(application)
-                        .setContentView(R.layout.window_hint)
-                        .setAnimStyle(R.style.IOSAnimStyle)
-                        .setImageDrawable(R.id.icon1, R.drawable.payment)
-                        .setImageDrawable(R.id.icon2, R.drawable.clean)
-                        .setImageDrawable(R.id.icon3, R.drawable.up)
-                        .setImageDrawable(R.id.icon4, R.drawable.down)
-                        .setText(android.R.id.message, "点击此处关闭")
-                        .setOnClickListener(
-                            android.R.id.message,
-                            object : XToast.OnClickListener<TextView?> {
-                                override  fun onClick(toast: XToast<*>, view: TextView?) {
-                                    toast.postDelayed(Runnable { toast.cancel() }, 500)
-                                }
-                            })
-                        .setOnClickListener(R.id.icon1, object : XToast.OnClickListener<View?> {
-                            override  fun onClick(toast: XToast<*>, view: View?) {
-                                Hawk.put(Constant.GROUP_CHARGE,true)
-                                val intent = packageManager.getLaunchIntentForPackage("com.tencent.mm")
-                                startActivity(intent)
-                                toast.postDelayed(Runnable { toast.cancel() }, 1000)
+            .setOnClickListener(R.id.logo) { _, _ ->
+                XToast<XToast<*>>(application)
+                    .setContentView(R.layout.window_hint)
+                    .setAnimStyle(R.style.IOSAnimStyle)
+                    .setImageDrawable(R.id.icon1, R.drawable.payment)
+                    .setImageDrawable(R.id.icon2, R.drawable.clean)
+                    .setImageDrawable(R.id.icon3, R.drawable.up)
+                    .setImageDrawable(R.id.icon4, R.drawable.down)
+                    .setText(android.R.id.message, "点击此处关闭")
+                    .setOnClickListener(
+                        android.R.id.message,
+                        object : XToast.OnClickListener<TextView?> {
+                            override fun onClick(toast: XToast<*>, view: TextView?) {
+                                toast.cancel()
                             }
                         })
-                        .setOnClickListener(R.id.icon2, object : XToast.OnClickListener<View?> {
-                            override fun onClick(toast: XToast<*>, view: View?) {
-                                Hawk.put(Constant.BATCH_READ,true)
-                                val intent = packageManager.getLaunchIntentForPackage("com.tencent.mm")
-                                startActivity(intent)
-                                toast.postDelayed(Runnable { toast.cancel() }, 1000)
-                            }
-                        })
-                        .setOnClickListener(R.id.icon3, object : XToast.OnClickListener<View?> {
-                            override  fun onClick(toast: XToast<*>, view: View?) {
-                                val intent = packageManager.getLaunchIntentForPackage("com.tencent.mm")
-                                Hawk.put(Constant.RECORD_ACTION,true)
-                                startActivity(intent)
-                                toast.postDelayed(Runnable { toast.cancel() }, 1000)
-                            }
-                        })
-                        .setOnClickListener(R.id.icon4, object : XToast.OnClickListener<View?> {
-                            override fun onClick(toast: XToast<*>, view: View?) {
-                                val intent = packageManager.getLaunchIntentForPackage("com.tencent.mm")
-                                Hawk.put(Constant.REPEAT_ACTION,true)
-                                startActivity(intent)
-                                toast.postDelayed(Runnable { toast.cancel() }, 1000)
-                            }
-                        })
-                        .show()
-                }
-            })
+                    .setOnClickListener(R.id.icon1, object : XToast.OnClickListener<View?> {
+                        override fun onClick(toast: XToast<*>, view: View?) {
+                            Hawk.put(Constant.GROUP_CHARGE, true)
+                            toast.cancel()
+                            val intent = packageManager.getLaunchIntentForPackage("com.tencent.mm")
+                            startActivity(intent)
+                        }
+                    })
+                    .setOnClickListener(R.id.icon2, object : XToast.OnClickListener<View?> {
+                        override fun onClick(toast: XToast<*>, view: View?) {
+                            Hawk.put(Constant.BATCH_READ, true)
+                            toast.cancel()
+                            val intent = Intent("com.example.superwe.gap")
+                            startActivity(intent)
+                            onPause()
+                        }
+                    })
+                    .setOnClickListener(R.id.icon3, object : XToast.OnClickListener<View?> {
+                        override fun onClick(toast: XToast<*>, view: View?) {
+                            val intent = packageManager.getLaunchIntentForPackage("com.tencent.mm")
+                            Hawk.put(Constant.RECORD_ACTION, true)
+                            startActivity(intent)
+                            toast.postDelayed(Runnable { toast.cancel() }, 1000)
+                        }
+                    })
+                    .setOnClickListener(R.id.icon4, object : XToast.OnClickListener<View?> {
+                        override fun onClick(toast: XToast<*>, view: View?) {
+                            val intent = packageManager.getLaunchIntentForPackage("com.tencent.mm")
+                            Hawk.put(Constant.REPEAT_ACTION, true)
+                            startActivity(intent)
+                            toast.postDelayed(Runnable { toast.cancel() }, 1000)
+                        }
+                    })
+                    .show()
+            }
             .show()
     }
 }

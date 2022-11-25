@@ -20,6 +20,6 @@ class Constant {
         val AUTO_REPLY_CONTENT = "auto_reply_content"
         val BATCH_REPLY = "batch_reply"
         val BATCH_REPLY_CONTENT = "batch_reply_content"
-        val BATCH_READ = "batch_reply"
+        val BATCH_READ = "batch_read"
     }
 }
