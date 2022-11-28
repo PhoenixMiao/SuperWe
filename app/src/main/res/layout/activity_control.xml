@@ -8,10 +8,8 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        tools:layout_editor_absoluteX="0dp"
-        tools:layout_editor_absoluteY="38dp">
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
         <TextView
             android:layout_width="match_parent"
@@ -158,69 +156,87 @@
                 android:text="@string/check_edit" />
         </LinearLayout>
 
-        <LinearLayout
+
+        <CheckBox
+            android:id="@+id/btn_display_window"
             android:layout_width="wrap_content"
-            android:layout_height="0dp"
-            android:layout_weight="10"
-            android:orientation="vertical">
+            android:layout_height="wrap_content"
+            android:layout_marginTop="1dp"
+            android:text="@string/display_window"
+            android:layout_gravity="center_horizontal"
+            style="@style/Widget.AppCompat.CompoundButton.RadioButton"
+            android:layout_weight="0.5"/>
 
-            <Button
-                android:id="@+id/btn_open_accessibility"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:layout_marginTop="1dp"
-                android:text="@string/open_accessibility" />
 
-            <Button
-                android:id="@+id/btn_open_wechat"
+            <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:layout_marginTop="1dp"
-                android:text="@string/open_wechat" />
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:orientation="horizontal"
+                android:layout_gravity="center_horizontal">
 
-            <Button
-                android:id="@+id/btn_group_charge"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:layout_marginTop="1dp"
-                android:text="@string/group_charge" />
+                <Button
+                    android:id="@+id/btn_open_accessibility"
+                    android:layout_width="140dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="1dp"
+                    android:text="@string/open_accessibility" />
 
-            <Button
-                android:id="@+id/btn_record_action"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:layout_marginTop="1dp"
-                android:text="@string/record_action" />
+                <Button
+                    android:id="@+id/btn_open_wechat"
+                    android:layout_width="140dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="70dp"
+                    android:layout_marginTop="1dp"
+                    android:text="@string/open_wechat" />
+            </LinearLayout>
 
-            <Button
-                android:id="@+id/btn_repeat_action"
+            <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:layout_marginTop="1dp"
-                android:text="@string/repeat_action" />
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:orientation="horizontal"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="5dp">
+                <Button
+                    android:id="@+id/btn_group_charge"
+                    android:layout_width="140dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/group_charge" />
 
-            <Button
-                android:id="@+id/btn_batch_read"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:layout_marginTop="1dp"
-                android:text="@string/batch_read" />
+                <Button
+                    android:id="@+id/btn_batch_read"
+                    android:layout_width="140dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="70dp"
+                    android:text="@string/batch_read" />
 
-            <Button
-                android:id="@+id/btn_display_window"
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:layout_marginTop="1dp"
-                android:text="@string/display_window" />
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:orientation="horizontal"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="5dp">
+
+                <Button
+                    android:id="@+id/btn_record_action"
+                    android:layout_width="140dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/record_action" />
+
+                <Button
+                    android:id="@+id/btn_repeat_action"
+                    android:layout_width="140dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="70dp"
+                    android:text="@string/repeat_action" />
+
+            </LinearLayout>
 
         </LinearLayout>
 
-    </LinearLayout>
+
 </ScrollView>

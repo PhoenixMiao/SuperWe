@@ -199,9 +199,9 @@ class ControlActivity : AppCompatActivity() {
                     .setContentView(R.layout.window_hint)
                     .setAnimStyle(R.style.IOSAnimStyle)
                     .setImageDrawable(R.id.icon1, R.drawable.payment)
-                    .setImageDrawable(R.id.icon2, R.drawable.clean)
-                    .setImageDrawable(R.id.icon3, R.drawable.up)
-                    .setImageDrawable(R.id.icon4, R.drawable.down)
+                    .setImageDrawable(R.id.icon2, R.drawable.clear)
+                    .setImageDrawable(R.id.icon3, R.drawable.record)
+                    .setImageDrawable(R.id.icon4, R.drawable.repeat)
                     .setText(android.R.id.message, "点击此处关闭")
                     .setOnClickListener(
                         android.R.id.message,
@@ -231,16 +231,17 @@ class ControlActivity : AppCompatActivity() {
                         override fun onClick(toast: XToast<*>, view: View?) {
                             val intent = packageManager.getLaunchIntentForPackage("com.tencent.mm")
                             Hawk.put(Constant.RECORD_ACTION, true)
+                            toast.cancel()
                             startActivity(intent)
-                            toast.postDelayed(Runnable { toast.cancel() }, 1000)
                         }
                     })
                     .setOnClickListener(R.id.icon4, object : XToast.OnClickListener<View?> {
                         override fun onClick(toast: XToast<*>, view: View?) {
-                            val intent = packageManager.getLaunchIntentForPackage("com.tencent.mm")
                             Hawk.put(Constant.REPEAT_ACTION, true)
+                            toast.cancel()
+                            val intent = Intent("com.example.superwe.gap")
                             startActivity(intent)
-                            toast.postDelayed(Runnable { toast.cancel() }, 1000)
+                            onPause()
                         }
                     })
                     .show()
