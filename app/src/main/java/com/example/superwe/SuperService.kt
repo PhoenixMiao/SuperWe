@@ -27,10 +27,13 @@ class SuperService : AccessibilityService() {
     private val TAG = "SuperService"
     private val handler = Handler()
     private var watcher = arrayListOf<Pair<String?,String?>>()
-    private var lastLaunchUI = listOf<AccessibilityNodeInfo>()
     companion object{
         @JvmField
         var isAuto = false
+        @Volatile @JvmField
+        var lastEnterpriseUI = listOf<AccessibilityNodeInfo>()
+        @Volatile @JvmField
+        var lastLauncherUI = listOf<AccessibilityNodeInfo>()
     }
 
     override fun onServiceConnected() {
@@ -57,44 +60,57 @@ class SuperService : AccessibilityService() {
             AccessibilityEvent.TYPE_VIEW_CLICKED -> {
                 if(Hawk.get(Constant.RECORD_ACTION,false)) {
 //                    if(event.packageName == "com.tencent.mm"){
-                        if(event.recordCount==1){
-                            for(i in lastLaunchUI.indices) {
-                                if(nodeInfo == lastLaunchUI[i]) {
-                                    watcher.add(Pair<String?,String?>("com.tencent.mm:id/bth",i.toString()))
+                    if(event.recordCount==1){
+                        var flag = false
+                        for(i in lastLauncherUI.indices) {
+                            if(nodeInfo == lastLauncherUI[i]) {
+                                watcher.add(Pair<String?,String?>("com.tencent.mm:id/bth",i.toString()))
+                                flag = true
+                                break
+                            }
+                        }
+//                            while(lastEnterpriseUI.isEmpty()) println("here");
+                        if(!flag) {
+                            for(i in lastEnterpriseUI.indices) {
+                                println(i)
+                                if(nodeInfo == lastEnterpriseUI[i]) {
+                                    watcher.add(Pair<String?,String?>("com.tencent.mm:id/btg",i.toString()))
+                                    println("found!!")
                                     break
                                 }
                             }
-                        }else if(className=="android.widget.Button" && nodeInfo.text=="发送") {
-                            Thread.sleep(1000)
-                            val nodes = rootInActiveWindow
-                            val messages = nodes.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/b4b")
-                            val list = Hawk.get(Constant.WATCHER, arrayListOf<Pair<String?,String?>>())
-                            var flag = true
-                            for(i in 1 until list.size + 1) {
-                                if(list[list.size - i].first=="com.tencent.mm:id/bth") {
-                                    if(flag) {
-                                        list[list.size - i] = Pair<String?,String?>("com.tencent.mm:id/bth", 0.toString())
-                                        flag = false;
-                                    }else {
-                                        list[list.size - i] = Pair<String?,String?>("com.tencent.mm:id/bth", ((list[list.size - i].second?.toInt()?:1) - 1).toString())
-                                    }
+                        }
+                    }else if(className=="android.widget.Button" && nodeInfo.text=="发送") {
+                        Thread.sleep(1000)
+                        val nodes = rootInActiveWindow
+                        val messages = nodes.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/b4b")
+                        val list = Hawk.get(Constant.WATCHER, arrayListOf<Pair<String?,String?>>())
+                        var flag = true
+                        for(i in 1 until list.size + 1) {
+                            if(list[list.size - i].first=="com.tencent.mm:id/bth") {
+                                if(flag) {
+                                    list[list.size - i] = Pair<String?,String?>("com.tencent.mm:id/bth", 0.toString())
+                                    flag = false;
+                                }else {
+                                    list[list.size - i] = Pair<String?,String?>("com.tencent.mm:id/bth", ((list[list.size - i].second?.toInt()?:1) - 1).toString())
                                 }
                             }
-                            watcher = list
-                            watcher.add(Pair<String?,String?>("send",messages[messages.size-1].text.toString()))
                         }
-                        else if(nodeInfo.className=="android.widget.EditText") watcher.add(Pair<String?,String?>("input",""))
-                        else if(nodeInfo.viewIdResourceName!=null) watcher.add(Pair<String?,String?>(nodeInfo.viewIdResourceName,""))
-                        else if(nodeInfo.text!=null) watcher.add(Pair<String?,String?>(nodeInfo.viewIdResourceName,nodeInfo.text.toString()))
-                        else {
-                            var ch = ""
-                            while(ch == "" && nodeInfo.childCount>0 && nodeInfo.getChild(0).text!=null) {
-                                ch = nodeInfo.getChild(0).text.toString()
-                                nodeInfo = nodeInfo.getChild(0)
-                            }
-                            watcher.add(Pair<String?,String?>(nodeInfo.viewIdResourceName,ch))
+                        watcher = list
+                        watcher.add(Pair<String?,String?>("send",messages[messages.size-1].text.toString()))
+                    }
+                    else if(nodeInfo.className=="android.widget.EditText") watcher.add(Pair<String?,String?>("input",""))
+                    else if(nodeInfo.viewIdResourceName!=null) watcher.add(Pair<String?,String?>(nodeInfo.viewIdResourceName,""))
+                    else if(nodeInfo.text!=null) watcher.add(Pair<String?,String?>(nodeInfo.viewIdResourceName,nodeInfo.text.toString()))
+                    else {
+                        var ch = ""
+                        while(ch == "" && nodeInfo.childCount>0 && nodeInfo.getChild(0).text!=null) {
+                            ch = nodeInfo.getChild(0).text.toString()
+                            nodeInfo = nodeInfo.getChild(0)
                         }
-                        Hawk.put(Constant.WATCHER,watcher)
+                        watcher.add(Pair<String?,String?>(nodeInfo.viewIdResourceName,ch))
+                    }
+                    Hawk.put(Constant.WATCHER,watcher)
 //                    }
                 }
             }
@@ -102,7 +118,13 @@ class SuperService : AccessibilityService() {
             AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED -> {
                 if(className == "com.tencent.mm.ui.LauncherUI") {
                     val nodes = rootInActiveWindow
-                    if(nodes!=null) lastLaunchUI = nodes.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/bth")
+                    if(nodes!=null) lastLauncherUI = nodes.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/bth")
+                }
+                if(className == "com.tencent.mm.ui.conversation.EnterpriseConversationUI") {
+                    Thread.sleep(500)
+                    val nodes = rootInActiveWindow
+                    if(nodes!=null) lastEnterpriseUI = nodes.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/btg")
+                    println("here we are" + lastEnterpriseUI.size)
                 }
                 if(Hawk.get(Constant.BATCH_REPLY,false)) {
                     isAuto = true
@@ -153,9 +175,6 @@ class SuperService : AccessibilityService() {
                     else performBackClick()
                     isAuto = false
                 }
-//                if (className == "com.tencent.mm.ui.widget.a.c") {
-//                    dialogClick()
-//                }
                 else if(className == "com.tencent.mm.ui.LauncherUI"){
                     if(Hawk.get(Constant.AUTO_REPLY,false)) {
                         isAuto = true
@@ -532,7 +551,9 @@ class SuperService : AccessibilityService() {
     private fun repeatAction() {
         var nodeInfo = rootInActiveWindow
         val watcher = Hawk.get(Constant.WATCHER,arrayListOf<Pair<String?,String?>>())
+//        Thread.sleep(3000)
         for(pair in watcher) {
+            Thread.sleep(500)
             nodeInfo = rootInActiveWindow
             if(nodeInfo != null) {
 //                if(pair.first==" " && pair.second==" ") {
@@ -540,9 +561,13 @@ class SuperService : AccessibilityService() {
 //                    continue
 //                }
                 var node = nodeInfo.findAccessibilityNodeInfosByText(pair.second)
+                println(pair)
                 if (pair.first == "com.tencent.mm:id/bth") {
-                    println(pair)
                     nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/bth")[pair.second?.toInt()!!].performAction(
+                        AccessibilityNodeInfo.ACTION_CLICK
+                    )
+                } else if(pair.first == "com.tencent.mm:id/btg") {
+                    nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/btg")[pair.second?.toInt()!!].performAction(
                         AccessibilityNodeInfo.ACTION_CLICK
                     )
                 } else if (pair.first == "send") {
@@ -678,6 +703,7 @@ class SuperService : AccessibilityService() {
                     arguments
                 )
                 nodeInfo.performAction(AccessibilityNodeInfo.ACTION_FOCUS)
+                Looper.prepare()
                 val clip = ClipData.newPlainText("label", content)
                 val clipboardManager = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
                 clipboardManager.setPrimaryClip(clip)
