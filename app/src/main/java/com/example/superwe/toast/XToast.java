@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
@@ -79,7 +78,6 @@ public class XToast<X extends XToast<?>> implements Runnable, ScreenOrientationM
     public XToast(Application application) {
         this((Context) application);
 
-        // 设置成全局的悬浮窗，注意需要先申请悬浮窗权限，推荐使用：https://github.com/getActivity/XXPermissions
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             setWindowType(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY);
         } else {
@@ -147,13 +145,7 @@ public class XToast<X extends XToast<?>> implements Runnable, ScreenOrientationM
         return (X) this;
     }
 
-    /**
-     * 设置窗口方向
-     *
-     * 自适应：{@link ActivityInfo#SCREEN_ORIENTATION_UNSPECIFIED}
-     * 横屏：{@link ActivityInfo#SCREEN_ORIENTATION_LANDSCAPE}
-     * 竖屏：{@link ActivityInfo#SCREEN_ORIENTATION_PORTRAIT}
-     */
+
     public X setScreenOrientation(int orientation) {
         mWindowParams.screenOrientation = orientation;
         update();
@@ -191,6 +183,16 @@ public class XToast<X extends XToast<?>> implements Runnable, ScreenOrientationM
         }
         update();
         return (X) this;
+    }
+
+    /**
+     * 监听外层点击事件
+     */
+    public X setOutsideClick() {
+        int flag = WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH;
+        addWindowFlags(flag);
+        update();
+        return (X)this;
     }
 
     /**
@@ -264,24 +266,6 @@ public class XToast<X extends XToast<?>> implements Runnable, ScreenOrientationM
     }
 
     /**
-     * 设置软键盘模式
-     *
-     * {@link WindowManager.LayoutParams#SOFT_INPUT_STATE_UNSPECIFIED}：没有指定状态,系统会选择一个合适的状态或依赖于主题的设置
-     * {@link WindowManager.LayoutParams#SOFT_INPUT_STATE_UNCHANGED}：不会改变软键盘状态
-     * {@link WindowManager.LayoutParams#SOFT_INPUT_STATE_HIDDEN}：当用户进入该窗口时，软键盘默认隐藏
-     * {@link WindowManager.LayoutParams#SOFT_INPUT_STATE_ALWAYS_HIDDEN}：当窗口获取焦点时，软键盘总是被隐藏
-     * {@link WindowManager.LayoutParams#SOFT_INPUT_ADJUST_RESIZE}：当软键盘弹出时，窗口会调整大小
-     * {@link WindowManager.LayoutParams#SOFT_INPUT_ADJUST_PAN}：当软键盘弹出时，窗口不需要调整大小，要确保输入焦点是可见的
-     */
-    public X setSoftInputMode(int mode) {
-        mWindowParams.softInputMode = mode;
-        // 如果设置了不能触摸，则擦除这个标记，否则会导致无法弹出输入法
-        clearWindowFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
-        update();
-        return (X) this;
-    }
-
-    /**
      * 设置窗口 Token
      */
     public X setWindowToken(IBinder token) {
@@ -345,17 +329,6 @@ public class XToast<X extends XToast<?>> implements Runnable, ScreenOrientationM
     }
 
     /**
-     * 设置挖孔屏下的显示模式
-     */
-    public X setLayoutInDisplayCutoutMode(int mode) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            mWindowParams.layoutInDisplayCutoutMode = mode;
-            update();
-        }
-        return (X) this;
-    }
-
-    /**
      * 设置窗口在哪个显示屏上显示
      */
     public X setPreferredDisplayModeId(int id) {
@@ -381,49 +354,6 @@ public class XToast<X extends XToast<?>> implements Runnable, ScreenOrientationM
     public X setScreenBrightness(float screenBrightness) {
         mWindowParams.screenBrightness = screenBrightness;
         update();
-        return (X) this;
-    }
-
-    /**
-     * 设置按键的亮度
-     */
-    public X setButtonBrightness(float buttonBrightness) {
-        mWindowParams.buttonBrightness = buttonBrightness;
-        update();
-        return (X) this;
-    }
-
-    /**
-     * 设置窗口的刷新率
-     */
-    public X setPreferredRefreshRate(float preferredRefreshRate) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            mWindowParams.preferredRefreshRate = preferredRefreshRate;
-            update();
-        }
-        return (X) this;
-    }
-
-    /**
-     * 设置窗口的颜色模式
-     */
-    public X setColorMode(int colorMode) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            mWindowParams.setColorMode(colorMode);
-            update();
-        }
-        return (X) this;
-    }
-
-    /**
-     * 设置窗口高斯模糊半径大小（Android 12 才有的）
-     */
-    public X setBlurBehindRadius(int blurBehindRadius) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            mWindowParams.setBlurBehindRadius(blurBehindRadius);
-            addWindowFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND);
-            update();
-        }
         return (X) this;
     }
 
@@ -466,18 +396,6 @@ public class XToast<X extends XToast<?>> implements Runnable, ScreenOrientationM
         }
         mScreenOrientationMonitor.register(mContext);
 
-        return (X) this;
-    }
-
-    /**
-     * 限定显示时长
-     */
-    public X setDuration(int duration) {
-        mDuration = duration;
-        if (isShowing() && mDuration != 0) {
-            removeCallbacks(this);
-            postDelayed(this, mDuration);
-        }
         return (X) this;
     }
 
@@ -821,14 +739,6 @@ public class XToast<X extends XToast<?>> implements Runnable, ScreenOrientationM
     }
 
     /**
-     * 设置可见状态
-     */
-    public X setVisibility(int id, int visibility) {
-        findViewById(id).setVisibility(visibility);
-        return (X) this;
-    }
-
-    /**
      * 设置文本
      */
     public X setText(int id) {
@@ -849,69 +759,6 @@ public class XToast<X extends XToast<?>> implements Runnable, ScreenOrientationM
     }
 
     /**
-     * 设置字体颜色
-     */
-    public X setTextColor(int id, int color) {
-        ((TextView) findViewById(id)).setTextColor(color);
-        return (X) this;
-    }
-
-    /**
-     * 设置字体大小
-     */
-    public X setTextSize(int id, float size) {
-        ((TextView) findViewById(id)).setTextSize(size);
-        return (X) this;
-    }
-
-    public X setTextSize(int id, int unit, float size) {
-        ((TextView) findViewById(id)).setTextSize(unit, size);
-        return (X) this;
-    }
-
-    /**
-     * 设置提示
-     */
-    public X setHint(int viewId, int stringId) {
-        return setHint(viewId, mContext.getResources().getString(stringId));
-    }
-
-    public X setHint(int id, CharSequence text) {
-        ((TextView) findViewById(id)).setHint(text);
-        return (X) this;
-    }
-
-    /**
-     * 设置提示文本颜色
-     */
-    public X setHintColor(int id, int color) {
-        ((TextView) findViewById(id)).setHintTextColor(color);
-        return (X) this;
-    }
-
-    /**
-     * 设置背景
-     */
-    public X setBackground(int viewId, int drawableId) {
-        Drawable drawable;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            drawable = mContext.getDrawable(drawableId);
-        } else {
-            drawable = mContext.getResources().getDrawable(drawableId);
-        }
-        return setBackground(viewId, drawable);
-    }
-
-    public X setBackground(int id, Drawable drawable) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            findViewById(id).setBackground(drawable);
-        } else {
-            findViewById(id).setBackgroundDrawable(drawable);
-        }
-        return (X) this;
-    }
-
-    /**
      * 设置图片
      */
     public X setImageDrawable(int viewId, int drawableId) {
@@ -927,20 +774,6 @@ public class XToast<X extends XToast<?>> implements Runnable, ScreenOrientationM
     public X setImageDrawable(int viewId, Drawable drawable) {
         ((ImageView) findViewById(viewId)).setImageDrawable(drawable);
         return (X) this;
-    }
-
-    /**
-     * 获取 Handler
-     */
-    public Handler getHandler() {
-        return HANDLER;
-    }
-
-    /**
-     * 延迟执行
-     */
-    public boolean post(Runnable runnable) {
-        return postDelayed(runnable, 0);
     }
 
     /**
@@ -989,26 +822,6 @@ public class XToast<X extends XToast<?>> implements Runnable, ScreenOrientationM
 
         view.setClickable(true);
         view.setOnClickListener(new ViewClickWrapper(this, listener));
-        return (X) this;
-    }
-
-    /**
-     * 设置长按事件
-     */
-    public X setOnLongClickListener(OnLongClickListener<? extends View> listener) {
-        return setOnLongClickListener(mDecorView, listener);
-    }
-
-    public X setOnLongClickListener(int id, OnLongClickListener<? extends View> listener) {
-        return setOnLongClickListener(findViewById(id), listener);
-    }
-
-    private X setOnLongClickListener(View view, OnLongClickListener<? extends View> listener) {
-        // 如果当前是否设置了不可触摸，如果是就擦除掉
-        clearWindowFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-
-        view.setClickable(true);
-        view.setOnLongClickListener(new ViewLongClickWrapper(this, listener));
         return (X) this;
     }
 

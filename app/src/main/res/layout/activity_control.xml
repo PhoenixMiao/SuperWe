@@ -157,15 +157,28 @@
         </LinearLayout>
 
 
-        <CheckBox
-            android:id="@+id/btn_display_window"
+        <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="1dp"
-            android:text="@string/display_window"
-            android:layout_gravity="center_horizontal"
-            style="@style/Widget.AppCompat.CompoundButton.RadioButton"
-            android:layout_weight="0.5"/>
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:layout_gravity="center_horizontal">
+
+            <Button
+                android:id="@+id/btn_display_window"
+                android:layout_width="140dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="1dp"
+                android:text="@string/display_window" />
+
+            <Button
+                android:id="@+id/btn_fold_window"
+                android:layout_width="140dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="70dp"
+                android:layout_marginTop="1dp"
+                android:text="@string/fold_window" />
+        </LinearLayout>
 
 
             <LinearLayout

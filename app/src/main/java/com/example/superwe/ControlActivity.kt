@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
 import android.view.Gravity
+import android.view.MotionEvent
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
@@ -15,7 +16,6 @@ import com.example.superwe.toast.draggable.SpringDraggable
 import com.hjq.permissions.OnPermissionCallback
 import com.hjq.permissions.XXPermissions
 import com.orhanobut.hawk.Hawk
-import kotlinx.coroutines.delay
 
 class ControlActivity : AppCompatActivity() {
 
@@ -46,6 +46,9 @@ class ControlActivity : AppCompatActivity() {
         val btnConfirm : Button = findViewById(R.id.content_confirm)
         val btnBatchRead : Button = findViewById(R.id.btn_batch_read)
         val btnDisplayWindow : Button = findViewById(R.id.btn_display_window)
+        val btnFoldWindow : Button = findViewById(R.id.btn_fold_window)
+
+        var xToast : XToast<XToast<*>> = XToast<XToast<*>>(application)
 
         editGroup.visibility = View.GONE
         editFriends.visibility = View.GONE
@@ -176,7 +179,7 @@ class ControlActivity : AppCompatActivity() {
                 .permission(com.hjq.permissions.Permission.SYSTEM_ALERT_WINDOW)
                 .request(object : OnPermissionCallback {
                     override fun onGranted(granted: List<String>, all: Boolean) {
-                        showGlobalWindow(application)
+                        xToast = showGlobalWindow(application)
                     }
                     override fun onDenied(denied: List<String>, never: Boolean) {
                         shortToast("fail")
@@ -184,32 +187,38 @@ class ControlActivity : AppCompatActivity() {
                 })
         }
 
+        btnFoldWindow.setOnClickListener {
+            if (xToast.isShowing) {
+                xToast.cancel();
+            }
+        }
+
     }
 
-    fun showGlobalWindow(application: Application) {
+    fun showGlobalWindow(application: Application) : XToast<XToast<*>> {
+        val xToast : XToast<XToast<*>> = XToast<XToast<*>>(application)
         // 传入 Application 表示这个是一个全局的 Toast
-        Log.d("1","MSG")
-        XToast<XToast<*>>(application)
+        xToast
             .setContentView(R.layout.window_wechat)
             .setGravity(Gravity.END or Gravity.BOTTOM)
             .setYOffset(200)
             .setDraggable(SpringDraggable())
-            .setOnClickListener(R.id.logo) { _, _ ->
+            .setOnClickListener(R.id.logo) { toast: XToast<*>, view: View?  ->
                 XToast<XToast<*>>(application)
                     .setContentView(R.layout.window_hint)
+                    .setOutsideClick()
+                    .setOnTouchListener { toast, view, event ->
+                        if (event?.action == MotionEvent.ACTION_OUTSIDE) {
+                            Log.d(TAG, "onTouch: ")
+                            toast?.cancel()
+                        }
+                        false
+                    }
                     .setAnimStyle(R.style.IOSAnimStyle)
                     .setImageDrawable(R.id.icon1, R.drawable.payment)
                     .setImageDrawable(R.id.icon2, R.drawable.clear)
                     .setImageDrawable(R.id.icon3, R.drawable.record)
                     .setImageDrawable(R.id.icon4, R.drawable.repeat)
-                    .setText(android.R.id.message, "点击此处关闭")
-                    .setOnClickListener(
-                        android.R.id.message,
-                        object : XToast.OnClickListener<TextView?> {
-                            override fun onClick(toast: XToast<*>, view: TextView?) {
-                                toast.cancel()
-                            }
-                        })
                     .setOnClickListener(R.id.icon1, object : XToast.OnClickListener<View?> {
                         override fun onClick(toast: XToast<*>, view: View?) {
                             Hawk.put(Constant.GROUP_CHARGE, true)
@@ -247,5 +256,6 @@ class ControlActivity : AppCompatActivity() {
                     .show()
             }
             .show()
+        return xToast
     }
 }

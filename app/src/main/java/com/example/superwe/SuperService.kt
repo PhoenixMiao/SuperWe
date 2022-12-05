@@ -2,21 +2,14 @@ package com.example.superwe
 
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityServiceInfo
-import android.app.Application
 import android.app.Notification
 import android.app.PendingIntent
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.os.*
 import android.util.Log
-import android.view.Gravity
-import android.view.View
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
-import android.widget.ImageView
-import android.widget.TextView
-import com.example.superwe.toast.XToast
-import com.example.superwe.toast.draggable.SpringDraggable
 import com.orhanobut.hawk.Hawk
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
