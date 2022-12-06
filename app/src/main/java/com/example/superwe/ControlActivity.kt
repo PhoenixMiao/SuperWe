@@ -1,9 +1,13 @@
 package com.example.superwe
 
+import android.Manifest
 import android.app.Application
 import android.content.ContentValues.TAG
 import android.content.Intent
+import android.graphics.*
+import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.provider.Settings
 import android.util.Log
 import android.view.Gravity
@@ -11,11 +15,15 @@ import android.view.MotionEvent
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import com.example.superwe.RedrawHelper.getFileByUri
+import com.example.superwe.RedrawHelper.redrawScreenshot
 import com.example.superwe.toast.XToast
 import com.example.superwe.toast.draggable.SpringDraggable
 import com.hjq.permissions.OnPermissionCallback
 import com.hjq.permissions.XXPermissions
 import com.orhanobut.hawk.Hawk
+
 
 class ControlActivity : AppCompatActivity() {
 
@@ -26,29 +34,31 @@ class ControlActivity : AppCompatActivity() {
     }
 
     private fun initView() {
-        val cbAutoZan : CheckBox = findViewById(R.id.cb_auto_zan)
-        val btnOpenWechat : Button = findViewById(R.id.btn_open_wechat)
-        val cbAutoReceiveLuckyMoney : CheckBox = findViewById(R.id.cb_lucky_money)
-        val btnOpenAccessbility : Button = findViewById(R.id.btn_open_accessibility)
-        val btnReset : Button = findViewById(R.id.btn_reset)
-        val btnSure : Button = findViewById(R.id.btn_sure)
-        val cbAddFriendsIntoGroup : CheckBox = findViewById(R.id.cb_invite_friends_into_group)
-        val editGroup : EditText = findViewById(R.id.edit_group)
-        val editFriends : EditText = findViewById(R.id.edit_friends)
-        val btnRecordAction : Button = findViewById(R.id.btn_record_action)
-        val btnRepeatAction : Button = findViewById(R.id.btn_repeat_action)
-        val btnGroupCharge : Button = findViewById(R.id.btn_group_charge)
-        val cbAutoReply : CheckBox = findViewById(R.id.auto_reply)
-        val autoReplyContent : EditText = findViewById(R.id.auto_reply_content)
-        val btnCheck : Button = findViewById(R.id.content_check)
-        val cbBatchReply : CheckBox = findViewById(R.id.batch_reply)
-        val batchReplyContent : EditText = findViewById(R.id.batch_reply_content)
-        val btnConfirm : Button = findViewById(R.id.content_confirm)
-        val btnBatchRead : Button = findViewById(R.id.btn_batch_read)
-        val btnDisplayWindow : Button = findViewById(R.id.btn_display_window)
+        val cbAutoZan: CheckBox = findViewById(R.id.cb_auto_zan)
+        val btnOpenWechat: Button = findViewById(R.id.btn_open_wechat)
+        val cbAutoReceiveLuckyMoney: CheckBox = findViewById(R.id.cb_lucky_money)
+        val btnOpenAccessbility: Button = findViewById(R.id.btn_open_accessibility)
+        val btnReset: Button = findViewById(R.id.btn_reset)
+        val btnSure: Button = findViewById(R.id.btn_sure)
+        val cbAddFriendsIntoGroup: CheckBox = findViewById(R.id.cb_invite_friends_into_group)
+        val editGroup: EditText = findViewById(R.id.edit_group)
+        val editFriends: EditText = findViewById(R.id.edit_friends)
+        val btnRecordAction: Button = findViewById(R.id.btn_record_action)
+        val btnRepeatAction: Button = findViewById(R.id.btn_repeat_action)
+        val btnGroupCharge: Button = findViewById(R.id.btn_group_charge)
+        val cbAutoReply: CheckBox = findViewById(R.id.auto_reply)
+        val autoReplyContent: EditText = findViewById(R.id.auto_reply_content)
+        val btnCheck: Button = findViewById(R.id.content_check)
+        val cbBatchReply: CheckBox = findViewById(R.id.batch_reply)
+        val batchReplyContent: EditText = findViewById(R.id.batch_reply_content)
+        val btnConfirm: Button = findViewById(R.id.content_confirm)
+        val btnBatchRead: Button = findViewById(R.id.btn_batch_read)
+        val btnDisplayWindow: Button = findViewById(R.id.btn_display_window)
         val btnFoldWindow : Button = findViewById(R.id.btn_fold_window)
+        val btnRedraw : Button = findViewById(R.id.btn_redraw)
 
-        var xToast : XToast<XToast<*>> = XToast<XToast<*>>(application)
+        var xToast: XToast<XToast<*>> = XToast<XToast<*>>(application)
+
 
         editGroup.visibility = View.GONE
         editFriends.visibility = View.GONE
@@ -69,7 +79,10 @@ class ControlActivity : AppCompatActivity() {
         }
 
         cbAutoReceiveLuckyMoney.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) Hawk.put(Constant.AUTO_RECEIVE_LUCKY_MONEY, true) else Hawk.put(Constant.AUTO_RECEIVE_LUCKY_MONEY, false)
+            if (isChecked) Hawk.put(
+                Constant.AUTO_RECEIVE_LUCKY_MONEY,
+                true
+            ) else Hawk.put(Constant.AUTO_RECEIVE_LUCKY_MONEY, false)
         }
 
         cbAutoZan.setOnCheckedChangeListener { _, isChecked ->
@@ -87,40 +100,39 @@ class ControlActivity : AppCompatActivity() {
                 editFriends.visibility = View.VISIBLE
                 btnReset.visibility = View.VISIBLE
                 btnSure.visibility = View.VISIBLE
-                editGroup.setText(Hawk.get(Constant.GROUP_NAME,""))
-                editFriends.setText(Hawk.get(Constant.FRIEND_LIST,""))
-            }
-            else{
+                editGroup.setText(Hawk.get(Constant.GROUP_NAME, ""))
+                editFriends.setText(Hawk.get(Constant.FRIEND_LIST, ""))
+            } else {
                 editGroup.visibility = View.GONE
                 editFriends.visibility = View.GONE
                 btnReset.visibility = View.GONE
                 btnSure.visibility = View.GONE
-                Hawk.put(Constant.ADDING_FRIENDS_INTO_GROUP,false)
+                Hawk.put(Constant.ADDING_FRIENDS_INTO_GROUP, false)
             }
         }
 
         btnSure.setOnClickListener {
             val group = editGroup.text.toString()
             val friends = editFriends.text.toString()
-            Log.d(TAG,group)
-            Log.d(TAG,friends)
+            Log.d(TAG, group)
+            Log.d(TAG, friends)
             Hawk.put(Constant.GROUP_NAME, group)
-            Hawk.put(Constant.FRIEND_LIST,friends)
-            Hawk.put(Constant.ADDING_FRIENDS_INTO_GROUP,true)
+            Hawk.put(Constant.FRIEND_LIST, friends)
+            Hawk.put(Constant.ADDING_FRIENDS_INTO_GROUP, true)
             val intent = packageManager.getLaunchIntentForPackage("com.tencent.mm")
             startActivity(intent)
         }
 
         btnCheck.setOnClickListener {
             val contents = autoReplyContent.text.toString()
-            Hawk.put(Constant.AUTO_REPLY_CONTENT,contents)
+            Hawk.put(Constant.AUTO_REPLY_CONTENT, contents)
         }
 
         cbAutoReply.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 autoReplyContent.visibility = View.VISIBLE
                 btnCheck.visibility = View.VISIBLE
-                autoReplyContent.setText(Hawk.get(Constant.AUTO_REPLY_CONTENT,"wait a minute"))
+                autoReplyContent.setText(Hawk.get(Constant.AUTO_REPLY_CONTENT, "wait a minute"))
                 Hawk.put(Constant.AUTO_REPLY, true)
             } else {
                 autoReplyContent.visibility = View.GONE
@@ -131,8 +143,8 @@ class ControlActivity : AppCompatActivity() {
 
         btnConfirm.setOnClickListener {
             val contents = batchReplyContent.text.toString()
-            Hawk.put(Constant.BATCH_REPLY_CONTENT,contents)
-            Hawk.put(Constant.BATCH_REPLY,true)
+            Hawk.put(Constant.BATCH_REPLY_CONTENT, contents)
+            Hawk.put(Constant.BATCH_REPLY, true)
             val intent = packageManager.getLaunchIntentForPackage("com.tencent.mm")
             startActivity(intent)
         }
@@ -141,7 +153,7 @@ class ControlActivity : AppCompatActivity() {
             if (isChecked) {
                 batchReplyContent.visibility = View.VISIBLE
                 btnConfirm.visibility = View.VISIBLE
-                batchReplyContent.setText(Hawk.get(Constant.BATCH_REPLY_CONTENT,"test"))
+                batchReplyContent.setText(Hawk.get(Constant.BATCH_REPLY_CONTENT, "test"))
                 Hawk.put(Constant.BATCH_REPLY, true)
             } else {
                 batchReplyContent.visibility = View.GONE
@@ -151,25 +163,25 @@ class ControlActivity : AppCompatActivity() {
         }
 
         btnGroupCharge.setOnClickListener {
-            Hawk.put(Constant.GROUP_CHARGE,true)
+            Hawk.put(Constant.GROUP_CHARGE, true)
             val intent = packageManager.getLaunchIntentForPackage("com.tencent.mm")
             startActivity(intent)
         }
 
         btnRepeatAction.setOnClickListener {
             val intent = packageManager.getLaunchIntentForPackage("com.tencent.mm")
-            Hawk.put(Constant.REPEAT_ACTION,true)
+            Hawk.put(Constant.REPEAT_ACTION, true)
             startActivity(intent)
         }
 
         btnRecordAction.setOnClickListener {
             val intent = packageManager.getLaunchIntentForPackage("com.tencent.mm")
-            Hawk.put(Constant.RECORD_ACTION,true)
+            Hawk.put(Constant.RECORD_ACTION, true)
             startActivity(intent)
         }
 
         btnBatchRead.setOnClickListener {
-            Hawk.put(Constant.BATCH_READ,true)
+            Hawk.put(Constant.BATCH_READ, true)
             val intent = packageManager.getLaunchIntentForPackage("com.tencent.mm")
             startActivity(intent)
         }
@@ -181,6 +193,7 @@ class ControlActivity : AppCompatActivity() {
                     override fun onGranted(granted: List<String>, all: Boolean) {
                         xToast = showGlobalWindow(application)
                     }
+
                     override fun onDenied(denied: List<String>, never: Boolean) {
                         shortToast("fail")
                     }
@@ -193,17 +206,24 @@ class ControlActivity : AppCompatActivity() {
             }
         }
 
+        btnRedraw.setOnClickListener {
+            val intent = Intent(Intent.ACTION_PICK, null)
+            intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*")
+            startActivityForResult(intent, 2)
+        }
+
+
     }
 
-    fun showGlobalWindow(application: Application) : XToast<XToast<*>> {
-        val xToast : XToast<XToast<*>> = XToast<XToast<*>>(application)
+    fun showGlobalWindow(application: Application): XToast<XToast<*>> {
+        val xToast: XToast<XToast<*>> = XToast<XToast<*>>(application)
         // 传入 Application 表示这个是一个全局的 Toast
         xToast
             .setContentView(R.layout.window_wechat)
             .setGravity(Gravity.END or Gravity.BOTTOM)
             .setYOffset(200)
             .setDraggable(SpringDraggable())
-            .setOnClickListener(R.id.logo) { toast: XToast<*>, view: View?  ->
+            .setOnClickListener(R.id.logo) { toast: XToast<*>, view: View? ->
                 XToast<XToast<*>>(application)
                     .setContentView(R.layout.window_hint)
                     .setOutsideClick()
@@ -258,4 +278,35 @@ class ControlActivity : AppCompatActivity() {
             .show()
         return xToast
     }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == 2) {
+            // 从相册返回的数据
+            if (data != null) {
+                // 得到图片的全路径
+                val imageUri : Uri? = data.getData();
+                if (imageUri != null) {
+                    val file = getFileByUri(imageUri,this)
+                    println(file.absolutePath)
+                    ActivityCompat.requestPermissions(
+                        this,
+                        arrayOf(
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                            Manifest.permission.READ_EXTERNAL_STORAGE
+                        ),
+                        0
+                    )
+                    val path = redrawScreenshot(file)
+                    toast("screenshot saved at$path")
+                }
+            }
+        }
+    }
+
+    private fun toast(str: String) {
+        Toast.makeText(this, str, Toast.LENGTH_LONG).show()
+    }
+
 }
+

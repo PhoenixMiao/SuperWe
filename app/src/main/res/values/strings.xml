@@ -27,4 +27,5 @@
     <string name="display_window">显示悬浮窗</string>
     <string name="fold_window">隐藏悬浮窗</string>
     <string name="back_to_launcher">返回主页面</string>
+    <string name="redraw">重渲染</string>
 </resources>
