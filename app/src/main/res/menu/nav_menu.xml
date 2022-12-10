@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/configuration_details_item"
+            android:title="查看配置详情">
+        </item>
+        <item
+            android:id="@+id/edit_group_item"
+            android:title="编辑好友分组">
+        </item>
+    </group>
+</menu>

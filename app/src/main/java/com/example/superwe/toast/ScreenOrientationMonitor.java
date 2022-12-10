@@ -5,9 +5,6 @@ import android.content.Context;
 import android.content.res.Configuration;
 
 /**
- *    author : Android 轮子哥
- *    github : https://github.com/getActivity/XToast
- *    time   : 2022/10/03
  *    desc   : 屏幕方向旋转监听
  */
 final class ScreenOrientationMonitor implements ComponentCallbacks {

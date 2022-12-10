@@ -3,9 +3,7 @@ package com.example.superwe
 import android.widget.Toast
 
 /**
- * 描述：
- *
- * @author CoderPig on 2018/04/12 12:14.
+ * 描述：包装Toast
  */
 fun shortToast(msg: String) = Toast.makeText(SuperApp.instance, msg, Toast.LENGTH_SHORT).show()
 

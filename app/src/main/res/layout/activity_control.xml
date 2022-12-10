@@ -1,171 +1,212 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.drawerlayout.widget.DrawerLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/drawerLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ControlActivity">
+    android:background="@drawable/background"
+    >
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_gravity="center_horizontal"
-            android:layout_weight="1"
-            android:background="@drawable/ic_launcher_background"
-            android:text="@string/superwe"
-            android:textAlignment="center"
-            android:textColor="#fff"
-            android:textSize="20sp" />
-
-
-        <view
-            android:id="@+id/cb_invite_friends_into_group"
-            class="androidx.appcompat.widget.AppCompatCheckBox"
-            android:layout_width="wrap_content"
-            android:layout_height="0dp"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="10dp"
-            android:layout_weight="1"
-            android:text="@string/add_friends" />
-
-        <view
-            android:id="@+id/edit_group"
-            class="androidx.appcompat.widget.AppCompatEditText"
-            android:layout_width="wrap_content"
-            android:layout_height="0dp"
-            android:layout_marginStart="13dp"
-            android:layout_marginEnd="10dp"
-            android:layout_weight="1.5"
-            android:hint="@string/group_name" />
-
-        <view
-            android:id="@+id/edit_friends"
-            class="androidx.appcompat.widget.AppCompatEditText"
-            android:layout_width="wrap_content"
-            android:layout_height="0dp"
-            android:layout_marginStart="13dp"
-            android:layout_marginEnd="10dp"
-            android:layout_weight="1.5"
-            android:hint="@string/friends_name" />
+        android:layout_height="match_parent"
+        tools:context=".ControlActivity">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
             <Button
-                android:id="@+id/btn_reset"
+                android:id="@+id/cb_invite_friends_into_group"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
                 android:layout_marginStart="10dp"
                 android:layout_marginTop="10dp"
-                android:text="@string/data_reset" />
+                android:layout_weight="1"
+                android:text="@string/add_friends" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <view
+                    android:id="@+id/edit_group"
+                    class="androidx.appcompat.widget.AppCompatEditText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="13dp"
+                    android:textColor="@color/white"
+                    android:textColorHint="#999999"
+                    android:hint="@string/group_name" />
+
+<!--                <Spinner-->
+<!--                    android:id="@+id/group_name_spinner"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:backgroundTint="@color/white"-->
+<!--                    android:foregroundTint="@color/white"-->
+<!--                    android:layout_gravity="bottom"/>-->
+
+                <TextView
+                    android:id="@+id/group_name_repeat_warn_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="存在同名分组，请更改分组名"
+                    android:textColor="#7A67EE"/>
+
+            </LinearLayout>
+
+            <view
+                android:id="@+id/edit_friends"
+                class="androidx.appcompat.widget.AppCompatEditText"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_marginStart="13dp"
+                android:layout_marginEnd="10dp"
+                android:layout_weight="1.5"
+                android:textColor="@color/white"
+                android:textColorHint="#999999"
+                android:hint="@string/friends_name" />
+
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <Button
+                    android:id="@+id/btn_reset"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="10dp"
+                    android:text="@string/data_reset" />
+
+                <Button
+                    android:id="@+id/btn_sure"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="10dp"
+                    android:text="@string/sure" />
+            </LinearLayout>
 
             <Button
-                android:id="@+id/btn_sure"
+                android:id="@+id/batch_reply"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
                 android:layout_marginStart="10dp"
                 android:layout_marginTop="10dp"
-                android:text="@string/sure" />
-        </LinearLayout>
+                android:layout_weight="1"
+                android:text="@string/batch_reply" />
 
-        <view
-            android:id="@+id/cb_auto_zan"
-            class="androidx.appcompat.widget.AppCompatCheckBox"
-            android:layout_width="wrap_content"
-            android:layout_height="0dp"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="10dp"
-            android:layout_weight="1"
-            android:text="@string/auto_zan" />
-
-        <view
-            android:id="@+id/cb_lucky_money"
-            class="androidx.appcompat.widget.AppCompatCheckBox"
-            android:layout_width="wrap_content"
-            android:layout_height="0dp"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="10dp"
-            android:layout_weight="1"
-            android:text="@string/auto_receive_lucky_money" />
-
-        <view
-            android:id="@+id/auto_reply"
-            class="androidx.appcompat.widget.AppCompatCheckBox"
-            android:layout_width="wrap_content"
-            android:layout_height="0dp"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="10dp"
-            android:layout_weight="1"
-            android:text="@string/auto_reply" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <EditText
-                android:id="@+id/auto_reply_content"
-                android:layout_width="280dp"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="13dp"
-                android:autofillHints="true"
-                android:hint="@string/edit_content"
-                android:inputType="text" />
+                android:orientation="horizontal">
 
-            <Button
-                android:id="@+id/content_check"
+                <EditText
+                    android:id="@+id/batch_reply_content"
+                    android:layout_width="280dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="13dp"
+                    android:autofillHints="true"
+                    android:textColor="@color/white"
+                    android:textColorHint="#999999"
+                    android:hint="@string/edit_content"
+                    android:inputType="text" />
+
+                <Button
+                    android:id="@+id/content_confirm"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/check_edit" />
+            </LinearLayout>
+
+            <view
+                android:id="@+id/cb_auto_zan"
+                class="androidx.appcompat.widget.AppCompatCheckBox"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/check_edit" />
-        </LinearLayout>
+                android:layout_height="0dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_weight="1"
+                android:textColor="@color/white"
+                android:buttonTint="@color/white"
+                android:text="@string/auto_zan" />
 
-        <view
-            android:id="@+id/batch_reply"
-            class="androidx.appcompat.widget.AppCompatCheckBox"
-            android:layout_width="wrap_content"
-            android:layout_height="0dp"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="10dp"
-            android:layout_weight="1"
-            android:text="@string/batch_reply" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <EditText
-                android:id="@+id/batch_reply_content"
-                android:layout_width="280dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="13dp"
-                android:autofillHints="true"
-                android:hint="@string/edit_content"
-                android:inputType="text" />
-
-            <Button
-                android:id="@+id/content_confirm"
+            <view
+                android:id="@+id/cb_lucky_money"
+                class="androidx.appcompat.widget.AppCompatCheckBox"
                 android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="10dp"
+                android:buttonTint="@color/white"
+                android:textColor="@color/white"
+                android:layout_weight="1"
+                android:text="@string/auto_receive_lucky_money" />
+
+            <view
+                android:id="@+id/auto_reply"
+                class="androidx.appcompat.widget.AppCompatCheckBox"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_marginStart="10dp"
+                android:textColor="@color/white"
+                android:buttonTint="@color/white"
+                android:layout_marginTop="10dp"
+                android:layout_weight="1"
+                android:text="@string/auto_reply" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/check_edit" />
-        </LinearLayout>
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/auto_reply_content"
+                    android:layout_width="280dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="13dp"
+                    android:autofillHints="true"
+                    android:textColor="@color/white"
+                    android:textColorHint="#999999"
+                    android:hint="@string/edit_content"
+                    android:inputType="text" />
+
+                <Button
+                    android:id="@+id/content_check"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/check_edit" />
+            </LinearLayout>
 
 
-        <CheckBox
-            android:id="@+id/btn_display_window"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="1dp"
-            android:text="@string/display_window"
-            android:layout_gravity="center_horizontal"
-            style="@style/Widget.AppCompat.CompoundButton.RadioButton"
-            android:layout_weight="0.5"/>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:orientation="horizontal"
+                android:layout_gravity="center_horizontal">
+
+                <Button
+                    android:id="@+id/btn_display_window"
+                    android:layout_width="140dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="1dp"
+                    android:text="@string/display_window" />
+
+                <Button
+                    android:id="@+id/btn_fold_window"
+                    android:layout_width="140dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="70dp"
+                    android:layout_marginTop="1dp"
+                    android:text="@string/fold_window" />
+            </LinearLayout>
 
 
             <LinearLayout
@@ -236,7 +277,43 @@
 
             </LinearLayout>
 
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:orientation="horizontal"
+                android:layout_gravity="center_horizontal">
+
+                <Button
+                    android:id="@+id/btn_contact_file"
+                    android:layout_width="140dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="1dp"
+                    android:text="@string/contact_file" />
+
+                <Button
+                    android:id="@+id/btn_redraw"
+                    android:layout_width="140dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="70dp"
+                    android:layout_marginTop="1dp"
+                    android:text="@string/redraw" />
+            </LinearLayout>
+
+
+
         </LinearLayout>
+    </ScrollView>
 
 
-</ScrollView>
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/navView"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:layout_gravity="start"
+        app:menu="@menu/nav_menu"
+        app:headerLayout="@layout/nav_header"
+        >
+    </com.google.android.material.navigation.NavigationView>
+
+</androidx.drawerlayout.widget.DrawerLayout>

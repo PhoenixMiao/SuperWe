@@ -6,9 +6,6 @@ import android.os.Build;
 import android.os.Bundle;
 
 /**
- *    author : Android 轮子哥
- *    github : https://github.com/getActivity/XToast
- *    time   : 2019/01/04
  *    desc   : 悬浮窗生命周期管理，防止内存泄露
  */
 final class ActivityLifecycle implements Application.ActivityLifecycleCallbacks {

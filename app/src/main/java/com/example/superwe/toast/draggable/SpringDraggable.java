@@ -7,9 +7,6 @@ import android.view.View;
 import android.widget.LinearLayout;
 
 /**
- *    author : Android 轮子哥
- *    github : https://github.com/getActivity/XToast
- *    time   : 2019/01/04
  *    desc   : 拖拽后回弹处理实现类
  */
 public class SpringDraggable extends BaseDraggable {
