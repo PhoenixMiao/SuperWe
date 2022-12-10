@@ -10,6 +10,7 @@ import android.content.pm.PackageManager
 import android.database.Cursor
 import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.provider.Settings
 import android.text.Editable
 import android.text.TextWatcher
@@ -353,6 +354,12 @@ class ControlActivity : AppCompatActivity() {
             if (xToast.isShowing) {
                 xToast.cancel()
             }
+        }
+
+        btnRedraw.setOnClickListener {
+            val intent = Intent(Intent.ACTION_PICK, null)
+            intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*")
+            startActivityForResult(intent, 2)
         }
 
     }
