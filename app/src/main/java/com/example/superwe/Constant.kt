@@ -8,7 +8,6 @@ package com.example.superwe
 class Constant {
     companion object {
 
-
         val ADDING_FRIENDS_INTO_GROUP ="adding_friends_into_group"
         val AUTO_ZAN ="auto_zan"
         val AUTO_RECEIVE_LUCKY_MONEY ="auto_receive_lucky_money"
@@ -31,6 +30,7 @@ class Constant {
 
         val RECORD_ACTION = "record_action"
         val REPEAT_ACTION = "repeat_action"
+        val REPEAT_LIST = "repeat_list"
 
         val WATCHER = "watcher"
 
