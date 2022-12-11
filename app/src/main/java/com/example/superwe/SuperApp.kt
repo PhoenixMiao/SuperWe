@@ -38,7 +38,8 @@ class SuperApp : Application() {
         Hawk.put(Constant.BATCH_REPLY_CONTENT,"")
         Hawk.put(Constant.BATCH_READ,false)
         Hawk.put(Constant.AUTO_REPLY_CONTENT,"")
-        Hawk.put(Constant.REPEAT_LIST, mutableMapOf("" to ""));
+        Hawk.put(Constant.ACTIONS, mutableMapOf<Int,Action>())
+        Hawk.put(Constant.READY, Action("", arrayListOf()))
         context = applicationContext
     }
 }

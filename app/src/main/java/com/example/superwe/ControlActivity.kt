@@ -120,7 +120,6 @@ class ControlActivity : AppCompatActivity() {
         //开启一次性操作组件
         val btnAddFriendsIntoGroup : Button = findViewById(R.id.cb_invite_friends_into_group)
         val btnRecordAction : Button = findViewById(R.id.btn_record_action)
-        val btnRepeatAction : Button = findViewById(R.id.btn_repeat_action)
         val btnGroupCharge : Button = findViewById(R.id.btn_group_charge)
         val btnBatchReply : Button = findViewById(R.id.batch_reply)
         val btnBatchRead : Button = findViewById(R.id.btn_batch_read)
@@ -145,7 +144,8 @@ class ControlActivity : AppCompatActivity() {
         val btnFoldWindow : Button = findViewById(R.id.btn_fold_window)
         var xToast : XToast<XToast<*>> = XToast<XToast<*>>(application)
         val groupNameRepeat : TextView = findViewById(R.id.group_name_repeat_warn_text)
-
+        val btnFinishRecord : Button = findViewById(R.id.btn_finish_record)
+        val btnCheckActionList : Button = findViewById(R.id.btn_check_action_list)
 
         editGroup.visibility = View.GONE
         editFriends.visibility = View.GONE
@@ -253,9 +253,33 @@ class ControlActivity : AppCompatActivity() {
                 val intent = packageManager.getLaunchIntentForPackage("com.tencent.mm")
                 startActivity(intent)
             }
+        }
 
+        val editText = EditText(this)
+        val alertDialog : AlertDialog.Builder = AlertDialog.Builder(this).apply {
+            setTitle("请输入行为名称")
+            setView(editText)
+            setCancelable(false)
+            setPositiveButton("保存") { dialog, which ->
+                val actions : MutableMap<Int,Action> = Hawk.get(Constant.ACTIONS)
+                val action = Action(editText.text.toString(),Hawk.get(Constant.WATCHER))
+                actions.put(action.id,action)
+                Hawk.put(Constant.ACTIONS,actions)
+                Hawk.put(Constant.WATCHER,arrayListOf<Pair<String?,String?>>())
+            }
+            setNegativeButton("取消") {dialog,which->
+            }
+        }
+        val dialog : AlertDialog = alertDialog.create()
 
+        btnFinishRecord.setOnClickListener {
+            Hawk.put(Constant.REPEAT_ACTION,false)
+            Hawk.put(Constant.RECORD_ACTION,false)
+            editText.text.clear()
+            dialog.show()
+        }
 
+        btnCheckActionList.setOnClickListener {
 
         }
 
@@ -311,12 +335,12 @@ class ControlActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        btnRepeatAction.setOnClickListener {
-            val intent = packageManager.getLaunchIntentForPackage("com.tencent.mm")
-            Hawk.put(Constant.REPEAT_ACTION,true)
-            Hawk.put(Constant.DISPOSABLE_ACTION,true)
-            startActivity(intent)
-        }
+//        btnRepeatAction.setOnClickListener {
+//            val intent = packageManager.getLaunchIntentForPackage("com.tencent.mm")
+//            Hawk.put(Constant.REPEAT_ACTION,true)
+//            Hawk.put(Constant.DISPOSABLE_ACTION,true)
+//            startActivity(intent)
+//        }
 
         btnRecordAction.setOnClickListener {
             val intent = packageManager.getLaunchIntentForPackage("com.tencent.mm")
@@ -360,6 +384,11 @@ class ControlActivity : AppCompatActivity() {
             val intent = Intent(Intent.ACTION_PICK, null)
             intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*")
             startActivityForResult(intent, 2)
+        }
+
+        btnCheckActionList.setOnClickListener {
+            val intent = Intent(this,ActionActivity::class.java)
+            startActivity(intent)
         }
 
     }
@@ -415,7 +444,7 @@ class ControlActivity : AppCompatActivity() {
                     })
                     .setOnClickListener(R.id.icon4, object : XToast.OnClickListener<View?> {
                         override fun onClick(toast: XToast<*>, view: View?) {
-                            Hawk.put(Constant.REPEAT_ACTION, true)
+
                             toast.cancel()
                             val intent = Intent("com.example.superwe.gap")
                             startActivity(intent)
