@@ -2,28 +2,31 @@
     <string name="app_name">SuperWe</string>
     <string name="title_activity_main">MainActivity</string>
     <!-- Strings used for fragments for navigation -->
-    <string name="add_friends">批量添加好友</string>
+    <string name="add_friends">批量邀请好友进群</string>
     <string name="input_group_friends_hint">复制用户昵称</string>
     <string name="write_into">写入数据</string>
     <string name="data_reset">重置数据</string>
     <string name="open_wechat">打开微信</string>
     <string name="auto_zan">朋友圈自动点赞</string>
-    <string name="open_accessibility">打开无障碍模式</string>
+    <string name="open_accessibility">打开无障碍</string>
     <string name="todo">TODO</string>
     <string name="btn_write">写入数据</string>
     <string name="superwe">SuperWe</string>
     <string name="group_charge">打开群收款</string>
     <string name="record_action">录入行为</string>
     <string name="repeat_action">重复行为</string>
-    <string name="group_name">群聊名称</string>
-    <string name="friends_name">好友名称</string>
+    <string name="group_name">在此输入分组名称</string>
+    <string name="friends_name">在此输入好友名称</string>
     <string name="sure">确定</string>
     <string name="auto_receive_lucky_money">自动收红包</string>
     <string name="auto_reply">自动回复</string>
     <string name="edit_content">请输入回复内容</string>
     <string name="check_edit">确认</string>
     <string name="batch_reply">批量回复</string>
-    <string name="batch_read">批量清除红点</string>
+    <string name="batch_read">消除未读消息</string>
     <string name="display_window">显示悬浮窗</string>
     <string name="back_to_launcher">返回主页面</string>
+    <string name="contact_file">导出通讯录</string>
+    <string name="fold_window">隐藏悬浮窗</string>
+    <string name="redraw">重渲染</string>
 </resources>

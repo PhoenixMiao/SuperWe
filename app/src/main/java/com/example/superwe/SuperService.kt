@@ -1,32 +1,29 @@
 package com.example.superwe
 
 import android.accessibilityservice.AccessibilityService
-import android.accessibilityservice.AccessibilityServiceInfo
-import android.app.Application
 import android.app.Notification
 import android.app.PendingIntent
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.os.*
 import android.util.Log
-import android.view.Gravity
-import android.view.View
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
-import android.widget.ImageView
-import android.widget.TextView
-import com.example.superwe.toast.XToast
-import com.example.superwe.toast.draggable.SpringDraggable
 import com.orhanobut.hawk.Hawk
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import java.io.File
+import java.io.FileOutputStream
 
 class SuperService : AccessibilityService() {
 
     private val TAG = "SuperService"
     private val handler = Handler()
     private var watcher = arrayListOf<Pair<String?,String?>>()
+    private val disposableActionInterruptedHint = "正在进行的操作已被中断"
+
+
     companion object{
         @JvmField
         var isAuto = false
@@ -36,15 +33,15 @@ class SuperService : AccessibilityService() {
         var lastLauncherUI = listOf<AccessibilityNodeInfo>()
     }
 
-    override fun onServiceConnected() {
-        super.onServiceConnected()
-        val config = AccessibilityServiceInfo();
-        //配置监听的事件类型为界面变化|点击事件
-        config.eventTypes = AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED.or(AccessibilityEvent.TYPE_VIEW_CLICKED).or(AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED)
-        config.feedbackType = AccessibilityServiceInfo.FEEDBACK_GENERIC;
-        config.flags = AccessibilityServiceInfo.FLAG_INCLUDE_NOT_IMPORTANT_VIEWS;
-        serviceInfo = config;
-    }
+//    override fun onServiceConnected() {
+//        super.onServiceConnected()
+//        val config = AccessibilityServiceInfo();
+//        //配置监听的事件类型为界面变化|点击事件
+//        config.eventTypes = AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED.or(AccessibilityEvent.TYPE_VIEW_CLICKED).or(AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED)
+//        config.feedbackType = AccessibilityServiceInfo.FEEDBACK_GENERIC;
+//        config.flags = AccessibilityServiceInfo.FLAG_INCLUDE_NOT_IMPORTANT_VIEWS;
+//        serviceInfo = config;
+//    }
 
     override fun onInterrupt() {}
 
@@ -53,13 +50,14 @@ class SuperService : AccessibilityService() {
         val eventType = event.eventType
         val classNameChr = event.className
         val className = classNameChr.toString()
-        Log.d(TAG, event.toString())
-        if(isAuto) return
         var nodeInfo = event.source //当前界面的可访问界点
+//        Log.d(TAG, eventTypeToString(eventType))
+        Log.d(TAG,className)
         when (eventType) {
+            //点击事件
             AccessibilityEvent.TYPE_VIEW_CLICKED -> {
+                //记录动作功能 one off
                 if(Hawk.get(Constant.RECORD_ACTION,false)) {
-//                    if(event.packageName == "com.tencent.mm"){
                     if(event.recordCount==1){
                         var flag = false
                         for(i in lastLauncherUI.indices) {
@@ -69,13 +67,11 @@ class SuperService : AccessibilityService() {
                                 break
                             }
                         }
-//                            while(lastEnterpriseUI.isEmpty()) println("here");
                         if(!flag) {
                             for(i in lastEnterpriseUI.indices) {
                                 println(i)
                                 if(nodeInfo == lastEnterpriseUI[i]) {
                                     watcher.add(Pair<String?,String?>("com.tencent.mm:id/btg",i.toString()))
-                                    println("found!!")
                                     break
                                 }
                             }
@@ -90,7 +86,7 @@ class SuperService : AccessibilityService() {
                             if(list[list.size - i].first=="com.tencent.mm:id/bth") {
                                 if(flag) {
                                     list[list.size - i] = Pair<String?,String?>("com.tencent.mm:id/bth", 0.toString())
-                                    flag = false;
+                                    flag = false
                                 }else {
                                     list[list.size - i] = Pair<String?,String?>("com.tencent.mm:id/bth", ((list[list.size - i].second?.toInt()?:1) - 1).toString())
                                 }
@@ -111,12 +107,17 @@ class SuperService : AccessibilityService() {
                         watcher.add(Pair<String?,String?>(nodeInfo.viewIdResourceName,ch))
                     }
                     Hawk.put(Constant.WATCHER,watcher)
-//                    }
                 }
             }
-
+            //窗口改变事件
             AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED -> {
                 if(className == "com.tencent.mm.ui.LauncherUI") {
+                    //获取通讯录信息 one off
+                    if(Hawk.get(Constant.GET_CONTACTS,false)){
+                        Hawk.put(Constant.GET_CONTACTS,false)
+                        contactToFile()
+                        Hawk.put(Constant.DISPOSABLE_ACTION,false)
+                    }
                     val nodes = rootInActiveWindow
                     if(nodes!=null) lastLauncherUI = nodes.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/bth")
                 }
@@ -124,131 +125,150 @@ class SuperService : AccessibilityService() {
                     Thread.sleep(500)
                     val nodes = rootInActiveWindow
                     if(nodes!=null) lastEnterpriseUI = nodes.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/btg")
-                    println("here we are" + lastEnterpriseUI.size)
                 }
+                //批量回复 one off
                 if(Hawk.get(Constant.BATCH_REPLY,false)) {
-                    isAuto = true
                     Hawk.put(Constant.BATCH_REPLY,false)
                     batchReply()
-                    isAuto = false
+                    Hawk.put(Constant.DISPOSABLE_ACTION,false)
                 }
+                //批量清除未读消息 one off
                 if(Hawk.get(Constant.BATCH_READ,false)) {
-                    isAuto = true
                     Hawk.put(Constant.BATCH_READ, false)
                     GlobalScope.launch {
                         batchRead()
-                        isAuto = false
                     }
+                    Hawk.put(Constant.DISPOSABLE_ACTION,false)
                 }
+                //重复行为 one off
                 if(Hawk.get(Constant.REPEAT_ACTION,false)) {
-                    isAuto = true
-                    Hawk.put(Constant.RECORD_ACTION,false)
                     Hawk.put(Constant.REPEAT_ACTION,false)
+                    Hawk.put(Constant.RECORD_ACTION,false)
                     GlobalScope.launch {
                         repeatAction()
-                        isAuto = false
                     }
+                    Hawk.put(Constant.DISPOSABLE_ACTION,false)
                 }
+                //群收款 one off
                 if(Hawk.get(Constant.GROUP_CHARGE,false)) {
+                    Hawk.put(Constant.GROUP_CHARGE,false)
                     val groups = rootInActiveWindow.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/ko4")
                     if(groups==null || groups.size==0 || groups[0]==null) {
-                        Hawk.put(Constant.GROUP_CHARGE,false)
+                        Hawk.put(Constant.DISPOSABLE_ACTION,false)
                         shortToast("请进入群聊界面后点击群收款")
                     } else {
-                        isAuto = true
                         GlobalScope.launch {
-                            Hawk.put(Constant.GROUP_CHARGE, false)
                             groupCharge()
-                            isAuto = false
+                            Hawk.put(Constant.DISPOSABLE_ACTION,false)
                         }
                     }
                 }
-
+                //邀请好友进入群聊 one off
                 val adding = Hawk.get(Constant.ADDING_FRIENDS_INTO_GROUP, false)
                 if (adding) {
-                    isAuto = true
-                    if(className=="com.tencent.mm.ui.LauncherUI") openGroup()
-                    else if(className == "com.tencent.mm.ui.contact.ChatroomContactUI") searchGroup()
-                    else if(className == "com.tencent.mm.ui.chatting.ChattingUI") openGroupSetting()
-                    else if(className == "com.tencent.mm.chatroom.ui.ChatroomInfoUI") openSelectContact()
-                    else if(className == "com.tencent.mm.ui.mvvm.MvvmSelectContactUI") addMembers()
-                    else performBackClick()
-                    isAuto = false
+                    Hawk.put(Constant.ADDING_FRIENDS_INTO_GROUP,false)
+                    val groups = rootInActiveWindow.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/ko4")
+                    if(groups==null || groups.size==0 || groups[0]==null) {
+                        Hawk.put(Constant.DISPOSABLE_ACTION,false)
+                        shortToast("请进入群聊界面后再进行批量好友邀请")
+                    } else {
+                        GlobalScope.launch {
+                            openGroupSetting()
+                            Hawk.put(Constant.DISPOSABLE_ACTION,false)
+                        }
+                    }
+//                    if(className=="com.tencent.mm.ui.LauncherUI") openGroup()
+//                    else if(className == "com.tencent.mm.ui.contact.ChatroomContactUI") searchGroup()
+//                    else if(className == "com.tencent.mm.ui.chatting.ChattingUI") openGroupSetting()
+//                    else if(className == "com.tencent.mm.chatroom.ui.ChatroomInfoUI") openSelectContact()
+//                    else if(className == "com.tencent.mm.ui.mvvm.MvvmSelectContactUI") addMembers()
+//                    else performBackClick()
                 }
                 else if(className == "com.tencent.mm.ui.LauncherUI"){
+                    //自动回复
                     if(Hawk.get(Constant.AUTO_REPLY,false)) {
-                        isAuto = true
-                        fill()
-                        isAuto = false
-                    }
-                    //自动收红包
-                    if(Hawk.get(Constant.AUTO_RECEIVE_LUCKY_MONEY,false)){
-                        isAuto = true
-                        val rootNode = rootInActiveWindow
-                        val hongBaoList = rootNode.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/b47")
-                        if(hongBaoList.size>0){
-                            Thread.sleep(300)
-                            hongBaoList.get(hongBaoList.size-1).performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                        if(!Hawk.get(Constant.DISPOSABLE_ACTION,false)){
+                            fill()
                         }
-                        isAuto = false
+                    }
+                    //自动点开红包
+                    if(Hawk.get(Constant.AUTO_RECEIVE_LUCKY_MONEY,false)){
+                        if(!Hawk.get(Constant.DISPOSABLE_ACTION,false)){
+                            val rootNode = rootInActiveWindow
+                            val hongBaoList = rootNode.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/b47")
+                            if(hongBaoList.size>0){
+                                Thread.sleep(300)
+                                hongBaoList.get(hongBaoList.size-1).performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                            }
+                        }
                     }
                 }
                 else if(className == "com.tencent.mm.plugin.luckymoney.ui.LuckyMoneyNotHookReceiveUI"){
-                    //自动打开红包
+                    //自动按红包的开按钮
                     if(Hawk.get(Constant.AUTO_RECEIVE_LUCKY_MONEY,false)){
-                        isAuto = true
-                        Thread.sleep(300)
-                        val source = event.source
-                        val openButton = source.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/giq")
-                        if(openButton.size>0){
-                            openButton[0].performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                        if(!Hawk.get(Constant.DISPOSABLE_ACTION,false)){
+                            Thread.sleep(800)
+                            val source = event.source
+                            recycle(source)
+                            val openButton = source.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/gip")
+                            if(openButton.size>0){
+                                openButton[0].performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                            }
                         }
-                        isAuto = false
                     }
                 }
                 else if(className == "com.tencent.mm.plugin.luckymoney.ui.LuckyMoneyDetailUI"){
                     //从红包界面退回
                     if(Hawk.get(Constant.AUTO_RECEIVE_LUCKY_MONEY,false)){
-                        isAuto = true
-                        performBackClick()
-                        isAuto = false
+                        if(!Hawk.get(Constant.DISPOSABLE_ACTION,false)){
+                            performBackClick()
+                        }
                     }
                 }
-                else if (Hawk.get(Constant.AUTO_ZAN, false)) {
+                //朋友圈自动点赞
+                if (Hawk.get(Constant.AUTO_ZAN, false)) {
                     if (className == "com.tencent.mm.plugin.sns.ui.SnsTimeLineUI") {
-                        isAuto = true
-                        autoZan()
-                        isAuto = false
+                        if(!Hawk.get(Constant.DISPOSABLE_ACTION,false)){
+                            autoZan()
+                        }
                     }
                 }
-            }
-
-            AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED -> {
-                if (event.parcelableData != null && event.parcelableData is Notification) {
-                    val notification = event.parcelableData as Notification
-                    val content = notification.tickerText.toString()
-                    if ((Hawk.get(Constant.AUTO_RECEIVE_LUCKY_MONEY,false) && content.contains("[微信红包]")) || Hawk.get(Constant.AUTO_REPLY,false)) {
-                        isAuto = true
-                        val pendingIntent = notification.contentIntent
-                        try {
-                            pendingIntent.send()
-                        } catch (e: PendingIntent.CanceledException) {
-                            e.printStackTrace()
-                        }finally {
-                            isAuto = false
+                if (Hawk.get(Constant.ANOTHER_AUTO_ZAN, false)) {
+                    if (className == "com.tencent.mm.plugin.sns.ui.SnsTimeLineUI") {
+                        if(!Hawk.get(Constant.DISPOSABLE_ACTION,false)){
+                            anotherAutoZan()
                         }
                     }
                 }
             }
+            //滚动事件
+            AccessibilityEvent.TYPE_VIEW_SCROLLED -> {
+                if (Hawk.get(Constant.ANOTHER_AUTO_ZAN, false)) {
+                    if(!Hawk.get(Constant.DISPOSABLE_ACTION,false)){
+                        anotherAutoZan()
+                    }
+                }
+            }
+            //通知栏状态改变
+            AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED -> {
+                if (event.parcelableData != null && event.parcelableData is Notification) {
+                    if(!Hawk.get(Constant.DISPOSABLE_ACTION,false)){
+                        val notification = event.parcelableData as Notification
+                        val content = notification.tickerText.toString()
+                        if ((Hawk.get(Constant.AUTO_RECEIVE_LUCKY_MONEY,false) && content.contains("[微信红包]")) || Hawk.get(Constant.AUTO_REPLY,false)) {
+                            val pendingIntent = notification.contentIntent
+                            try {
+                                pendingIntent.send()
+                            } catch (e: PendingIntent.CanceledException) {
+                                e.printStackTrace()
+                                Hawk.put(Constant.DISPOSABLE_ACTION,false)
+                            }finally {
+                            }
+                        }
+                    }
 
-            //            //滚动的时候也去监听红包，不过有点卡
-////            AccessibilityEvent.TYPE_VIEW_SCROLLED -> {
-////                if (className == "android.widget.ListView") {
-////                    openRedPacket()
-////                }
-////            }
-//        }
-//    }
+                }
+            }
         }
     }
 
@@ -284,21 +304,25 @@ class SuperService : AccessibilityService() {
         if (nodeInfo != null) {
             val nodes = nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/f2v")
             var found=false
+            val group = Hawk.get(Constant.GROUP_NAME,"").trim()
             for (node in nodes) {
                 val infoNode = node.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/bqu")
                 if(infoNode.size>0)
                 {
                     val info = infoNode[0]
-                    val group = Hawk.get(Constant.GROUP_NAME,"").trim()
-                    if (info.text.toString().equals(group)) {
+                    val groupName = info.text.toString()
+                    if (groupName.equals(group)) {
                         found = true
                         node.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                        Thread.sleep(800)
                         break
                     }
                 }
             }
             if(found==false){
                 Hawk.put(Constant.ADDING_FRIENDS_INTO_GROUP,false)
+                Hawk.put(Constant.DISPOSABLE_ACTION, false)
+
             }
         }
     }
@@ -308,10 +332,14 @@ class SuperService : AccessibilityService() {
         val nodeInfo = rootInActiveWindow
         if (nodeInfo != null) {
             nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/eo")[0].performAction(AccessibilityNodeInfo.ACTION_CLICK)
+            Thread.sleep(500)
+            openSelectContact()
         }
         else {
             performBackClick()
             Hawk.put(Constant.ADDING_FRIENDS_INTO_GROUP,false)
+            Hawk.put(Constant.DISPOSABLE_ACTION, false)
+
         }
 
     }
@@ -334,22 +362,17 @@ class SuperService : AccessibilityService() {
                     val scrollNodeInfo = rootInActiveWindow
                     if (scrollNodeInfo != null) {
                         val nodes = scrollNodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/iwc")
-                        handler.postDelayed({
-//                            for (info in nodes) {
-//                                if (info.contentDescription.toString() == "添加成员") {
-//                                    info.parent.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-//                                    break
-//                                }
-//                            }
-                            nodes.get(memberCount).performAction(AccessibilityNodeInfo.ACTION_CLICK)
-                            addMembers()
-                        }, 1000L)
+                        nodes.get(memberCount).performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                        Thread.sleep(700)
+                        addMembers()
                     }
                 }
             }
+            addMembers()
         } else {
             performBackClick()
             Hawk.put(Constant.ADDING_FRIENDS_INTO_GROUP,false)
+            Hawk.put(Constant.DISPOSABLE_ACTION, false)
         }
 
     }
@@ -361,7 +384,6 @@ class SuperService : AccessibilityService() {
             val members = friend_list_str.split("\n")
             if (members.size > 0) {
                 for (i in 0 until members.size) {
-                    handler.postDelayed({
                         val nodeInfo = rootInActiveWindow
                         if (nodeInfo != null) {
                             val editNodes = nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/h7o")
@@ -370,25 +392,25 @@ class SuperService : AccessibilityService() {
                                 val arguments = Bundle()
                                 arguments.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, members[i].trim())
                                 editNode.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, arguments)
+                                Thread.sleep(300)
                             }
                         }
-                    }, 500L * (i + 1))
-                    handler.postDelayed({
                         val list = rootInActiveWindow.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/j55")
-                        val cbNodes = list[0].findAccessibilityNodeInfosByText(members[i].trim())
-                        if (cbNodes != null) {
-                            val cbNode: AccessibilityNodeInfo?
-                            if (cbNodes.size > 0) {
-                                cbNode = cbNodes[0]
-                                cbNode?.parent?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-                                Thread.sleep(300)
+                        if(list.size>0){
+                            val cbNodes = list[0].findAccessibilityNodeInfosByText(members[i].trim())
+                            if (cbNodes != null) {
+                                val cbNode: AccessibilityNodeInfo?
+                                if (cbNodes.size > 0) {
+                                    cbNode = cbNodes[0]
+                                    cbNode?.parent?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                                    Thread.sleep(500)
+                                }
                             }
                         }
                         //最后一次的时候清空记录，并且点击顶部确定按钮
                         if (i == members.size - 1) {
-//                            Hawk.put(Constant.GROUP_NAME, "")
-//                            Hawk.put(Constant.FRIEND_LIST, "")
                             Hawk.put(Constant.ADDING_FRIENDS_INTO_GROUP, false)
+                            Hawk.put(Constant.DISPOSABLE_ACTION, false)
                             val sureNodes = rootInActiveWindow.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/e9s")
                             if (sureNodes != null && sureNodes.size > 0) {
                                 if(sureNodes[0].text.toString().equals("完成")){
@@ -400,7 +422,6 @@ class SuperService : AccessibilityService() {
                             }
 
                         }
-                    }, 700L * (i + 1))
                 }
             }
         }
@@ -412,36 +433,72 @@ class SuperService : AccessibilityService() {
         inviteNode.performAction(AccessibilityNodeInfo.ACTION_CLICK)
     }
 
-    //自动点赞
-    private fun autoZan() {
+    private fun anotherAutoZan(){
         val nodeInfo = rootInActiveWindow
         if (nodeInfo != null) {
-            while (true) {
-                val rootNode = rootInActiveWindow
-                if (rootNode != null) {
-                    val friend_squares = rootNode.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/jv8")
-                    if (friend_squares != null && friend_squares.size > 0) {
-                        for(i in 1..friend_squares.size){
-                            val friend_square = friend_squares[i-1]
-                            val zanNodes = friend_square.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/nh")
-                            for(zan in zanNodes) {
-                                zan.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+            val friend_squares = nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/jtr")
+            if (friend_squares != null && friend_squares.size > 0) {
+                for(i in 1..friend_squares.size){
+                    val friend_square = friend_squares[i-1]
+                    val zanNodes = friend_square.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/nh")
+                    for(zan in zanNodes) {
+                        zan.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                        Thread.sleep(300)
+                        val zsNodes = rootInActiveWindow.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/jp")
+                        if (zsNodes != null && zsNodes.size > 0) {
+                            val dianZan = zsNodes[0].findAccessibilityNodeInfosByViewId("com.tencent.mm:id/n4")
+                            if (dianZan.size > 0 && dianZan[0].text.equals("赞")) {
+                                dianZan[0].parent.performAction(AccessibilityNodeInfo.ACTION_CLICK)
                                 Thread.sleep(300)
-                                val zsNodes = rootInActiveWindow.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/jp")
-                                if (zsNodes != null && zsNodes.size > 0) {
-                                    val dianZan = zsNodes[0].findAccessibilityNodeInfosByText("赞")
-                                    if (dianZan.size > 0) {
-                                        dianZan[0].parent.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-                                    }
-                                }
-                                Thread.sleep(500)
                             }
-                            friend_square.performAction(AccessibilityNodeInfo.ACTION_SCROLL_FORWARD)
+                            else{
+                                zan.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                            }
+                        }
+                        Thread.sleep(500)
+                    }
+                }
+            }
+        }
+    }
+
+    //自动点赞
+    private fun autoZan() {
+        while (true) {
+            val rootNode = rootInActiveWindow
+            if (rootNode != null) {
+                val friend_squares = rootNode.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/jtr")
+                if (friend_squares != null && friend_squares.size > 0) {
+                    for(i in 1..friend_squares.size){
+                        val friend_square = friend_squares[i-1]
+                        val zanNodes = friend_square.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/nh")
+                        if(zanNodes.size>0) {
+                            val zan = zanNodes[0]
+                            zan.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                            Thread.sleep(500)
+                            val zsNodes = rootInActiveWindow.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/jp")
+                            if (zsNodes != null && zsNodes.size > 0) {
+                                val dianZan = zsNodes[0].findAccessibilityNodeInfosByViewId("com.tencent.mm:id/n4")
+                                if (dianZan.size > 0 && dianZan[0].text.equals("赞")) {
+                                    dianZan[0].parent.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                                }
+                                else{
+                                    zan.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                                }
+                            }
+                            Thread.sleep(500)
                         }
                     }
-                } else {
-                    break
+                    val screen = rootInActiveWindow.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/jv8")
+                    if(screen.size<=0){
+                        shortToast(disposableActionInterruptedHint)
+                        return
+                    }
+                    screen[0].performAction(AccessibilityNodeInfo.ACTION_SCROLL_FORWARD)
+                    Thread.sleep(700)
                 }
+            } else {
+                break
             }
         }
     }
@@ -527,12 +584,6 @@ class SuperService : AccessibilityService() {
             )
         }
         Thread.sleep(1000)
-
-//        if (nodeInfo != null) {
-//            nodeInfo.findAccessibilityNodeInfosByText(groupName)[0].parent.performAction(
-//                AccessibilityNodeInfo.ACTION_CLICK
-//            )
-//        }
         nodeInfo = rootInActiveWindow
         if(nodeInfo != null) {
             val target = nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/cd7")[0]
@@ -551,15 +602,10 @@ class SuperService : AccessibilityService() {
     private fun repeatAction() {
         var nodeInfo = rootInActiveWindow
         val watcher = Hawk.get(Constant.WATCHER,arrayListOf<Pair<String?,String?>>())
-//        Thread.sleep(3000)
         for(pair in watcher) {
             Thread.sleep(500)
             nodeInfo = rootInActiveWindow
             if(nodeInfo != null) {
-//                if(pair.first==" " && pair.second==" ") {
-//                    performBackClick()
-//                    continue
-//                }
                 var node = nodeInfo.findAccessibilityNodeInfosByText(pair.second)
                 println(pair)
                 if (pair.first == "com.tencent.mm:id/bth") {
@@ -597,11 +643,9 @@ class SuperService : AccessibilityService() {
         var nodeInfo = rootInActiveWindow
         nodeInfo = rootInActiveWindow
         if (nodeInfo != null) {
-            var target = nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/bth")
+            val target = nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/bth")
             val size = target.size
             for (i in 0 until size) {
-//                nodeInfo = rootInActiveWindow
-//                target = nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/bth")
                 target[i].performAction(AccessibilityNodeInfo.ACTION_CLICK)
                 Thread.sleep(1000)
                 nodeInfo = rootInActiveWindow
@@ -618,51 +662,109 @@ class SuperService : AccessibilityService() {
      */
     private fun batchRead() {
         var nodeInfo = rootInActiveWindow
-        if (nodeInfo != null) {
-            //红点聊天框
-            val target = nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/kmv")
-            //当前所有聊天框
-            val commu = nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/bth")
-            for (i in 0 until commu.size) {
-//                for(j in 0 until target.size) {
-//                    if(commu[i] == target[j].parent) {
+        var scroll = true
+        var lastNode = nodeInfo
+        //打开置顶聊天
+        var top = nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/ebm")
+        if(top.size>0){
+            if(!top[0].text.equals("折叠置顶聊天")){
+                top[0].parent.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                Thread.sleep(800)
+            }
+        }
+        nodeInfo = rootInActiveWindow
+        do{
+            Log.d(TAG,"can scroll?"+scroll.toString())
+            if (nodeInfo != null) {
+                //找到“折叠置顶聊天”节点
+                top = nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/ebm")
+                if(top.size<=0 || !top[0].text.equals("折叠置顶聊天")){top=null}
+                //红点聊天框
+//                val target = nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/kmv")
+                //当前所有聊天框
+                val commu = nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/bth")
+                if (commu.size==0){
+                    return
+                }
+                //翻页到底部则停止点击
+                if(commu[commu.size-1]==lastNode){
+                    return
+                }
+                else{
+                    lastNode = commu[commu.size-1]
+                }
+                //点击所有聊天框
+                for (i in 0 until commu.size-1) {
+                    if(top==null || commu[i] != top[0].parent)
+                    {
                         commu[i].performAction(AccessibilityNodeInfo.ACTION_CLICK)
-                        Thread.sleep(1000)
+                        Thread.sleep(800)
                         nodeInfo = rootInActiveWindow
                         nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/g0")[0].performAction(AccessibilityNodeInfo.ACTION_CLICK)
-                        Thread.sleep(1000)
-//                    }
-//                }
+                        Thread.sleep(1500)
+                    }
+                }
+                //翻页
+                nodeInfo = rootInActiveWindow
+                val scrollNode = nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/gkp")[0]
+                scroll = scrollNode.performAction(AccessibilityNodeInfo.ACTION_SCROLL_FORWARD)
+                Thread.sleep(800)
+                nodeInfo = rootInActiveWindow
             }
-            Thread.sleep(1000)
-        }
+        }while (scroll)
     }
 
     private fun batchReply() {
         var nodeInfo = rootInActiveWindow
-        if (nodeInfo != null) {
-            //红点聊天框
-            val target = nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/kmv")
-            //当前所有聊天框
-            val commu = nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/bth")
-            for (i in 0 until commu.size) {
-//                for(j in 0 until target.size) {
-//                    if(commu[i] == target[j].parent) {
-                commu[i].performAction(AccessibilityNodeInfo.ACTION_CLICK)
-                Thread.sleep(1000)
-                val nodes = rootInActiveWindow
-                findEditText(nodes,Hawk.get(Constant.BATCH_REPLY_CONTENT,"test"))
-                Thread.sleep(1000)
-                send()
-                Thread.sleep(1000)
-                nodeInfo = rootInActiveWindow
-                nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/g0")[0].performAction(AccessibilityNodeInfo.ACTION_CLICK)
-                Thread.sleep(1000)
-//                    }
-//                }
+        var scroll = true
+        var lastNode = nodeInfo
+        //打开置顶聊天
+        val top = nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/ebm")
+        if(top.size>0){
+            if(!top[0].text.equals("折叠置顶聊天")){
+                top[0].parent.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                Thread.sleep(800)
             }
-            Thread.sleep(1000)
         }
+        nodeInfo = rootInActiveWindow
+        do{
+            Log.d(TAG,scroll.toString())
+            if (nodeInfo != null) {
+                //当前所有聊天框
+                val commu = nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/bth")
+                if(commu.size<=0) shortToast("当前不处于“微信”页面，批量回复操作已停止")
+                //翻页到底部则停止点击
+                if(commu[commu.size-1]==lastNode){
+                    return
+                }
+                else{
+                    lastNode = commu[commu.size-1]
+                }
+                for (i in 0 until commu.size) {
+                    commu[i].performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                    Thread.sleep(1000)
+                    val nodes = rootInActiveWindow
+                    findEditText(nodes,Hawk.get(Constant.BATCH_REPLY_CONTENT,"test"))
+                    Thread.sleep(1000)
+                    send()
+                    Thread.sleep(1000)
+                    nodeInfo = rootInActiveWindow
+                    if(nodeInfo.className!="android.widget.FrameLayout")
+                        shortToast("当前不处于聊天界面")
+                    nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/g0")[0].performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                    Thread.sleep(1000)
+                }
+                Thread.sleep(1000)
+                //翻页
+                nodeInfo = rootInActiveWindow
+                val scrollNode = nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/gkp")
+                if(scrollNode.size>0)
+                    scroll = scrollNode[0].performAction(AccessibilityNodeInfo.ACTION_SCROLL_FORWARD)
+                Thread.sleep(800)
+                nodeInfo = rootInActiveWindow
+            }
+        }while (scroll)
+
     }
 
     private fun fill() {
@@ -734,10 +836,120 @@ class SuperService : AccessibilityService() {
                         n.performAction(AccessibilityNodeInfo.ACTION_CLICK)
                     }
                 }
+                else{
+                    shortToast("当前页面不能发送信息")
+                }
             }
+
         }
     }
 
+    /*
+     * 统计通讯录
+     */
+    private fun contactToFile() {
+
+        var nodeInfo = rootInActiveWindow
+        if (nodeInfo != null) {
+            //返回首页
+            nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/g0")[0].performAction(AccessibilityNodeInfo.ACTION_CLICK)
+            nodeInfo = rootInActiveWindow
+            // 查找底边导航按钮
+            var nodes = nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/kd_")
+            if (nodes != null && nodes.size > 1) {
+                // 点击“通讯录”按钮
+                nodes[1].performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                // 再次点击到达“通讯录”首先应当滑动置顶
+                nodes[1].performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                var end = false
+                var contactPerson = mutableSetOf<String>()
+                //新建文件
+                createNewFile()
+
+                //遍历联系人
+                while (!end) {
+                    nodeInfo = rootInActiveWindow
+                    var page = nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/js")
+                    var contact = page[0].childCount
+                    for (i in 0 until contact){
+                        page[0].getChild(i).performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                        Thread.sleep(1000)
+                        var node = rootInActiveWindow
+                        if (node == nodeInfo) continue
+                        val nickname = node.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/bq0")
+                        val name = node.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/bq1")
+                        val number = node.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/bq9")
+                        val position = node.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/bpz")
+                        // 非联系人，直接退出
+                        if (name.size == 0) {
+                            node.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/g0")[0].performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                            Thread.sleep(1000)
+                            continue
+                        }
+                        // 重复联系人，直接退出
+                        if (contactPerson.contains(name[0].text.toString())) {
+                            node.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/g0")[0].performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                            Thread.sleep(1000)
+                            continue
+                        } else {
+                            contactPerson.add(name[0].text.toString())
+                        }
+                        writeTextToFile(name[0].text.toString())
+                        if (nickname.size == 0) {
+                            val str = "昵称:  " + name[0].text.toString()
+                            writeTextToFile(str)
+                        } else {
+                            writeTextToFile(nickname[0].text.toString())
+                        }
+                        writeTextToFile(number[0].text.toString())
+                        if (position.size == 0) {
+                            writeTextToFile("地区:  暂无")
+                        } else {
+                            writeTextToFile(position[0].text.toString())
+                        }
+                        writeTextToFile(" ")
+
+                        node.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/g0")[0].performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                        Thread.sleep(1000)
+                    }
+                    //下滑
+                    page[0].performAction((AccessibilityNodeInfo.ACTION_SCROLL_FORWARD))
+                    Thread.sleep(2000)
+                    nodeInfo = rootInActiveWindow
+                    var newPage = nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/js")
+                    // 到底结束下滑
+                    if (page[0].getChild(0) == newPage[0].getChild(0)) end = true
+                }
+
+
+            }
+        }
+    }
+    /*
+     * 写入文件
+     */
+    private fun writeTextToFile(content: String) {
+        val path = "/data/data/com.example.superwe/contacts.txt"
+        val fos = FileOutputStream(path, true)
+        val info = content + "\n"
+        fos.write(info.toByteArray())
+        fos.flush()
+        fos.close()
+    }
+
+
+    /*
+     * 新建文件
+     */
+    private fun createNewFile() {
+        var file = File("/data/data/com.example.superwe/contacts.txt")
+
+        if (file.exists()) {
+            file.delete()
+        }
+        file.createNewFile()
+
+    }
 
 
 }

@@ -3,9 +3,6 @@ package com.example.superwe.toast;
 import android.view.View;
 
 /**
- *    author : Android 轮子哥
- *    github : https://github.com/getActivity/XToast
- *    time   : 2021/09/03
  *    desc   : {@link View.OnLongClickListener} 包装类
  */
 @SuppressWarnings("rawtypes")

@@ -193,6 +193,12 @@ public class XToast<X extends XToast<?>> implements Runnable, ScreenOrientationM
         return (X) this;
     }
 
+    public X setOutsideClick(){
+        int flag = WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH;
+        addWindowFlags(flag);
+        update();
+        return (X)this;
+    }
     /**
      * 设置窗口背景阴影强度
      */
