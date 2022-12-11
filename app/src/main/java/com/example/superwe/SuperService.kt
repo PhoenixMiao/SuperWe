@@ -1,6 +1,7 @@
 package com.example.superwe
 
 import android.accessibilityservice.AccessibilityService
+import android.accessibilityservice.AccessibilityServiceInfo
 import android.app.Notification
 import android.app.PendingIntent
 import android.content.ClipData
@@ -33,15 +34,15 @@ class SuperService : AccessibilityService() {
         var lastLauncherUI = listOf<AccessibilityNodeInfo>()
     }
 
-//    override fun onServiceConnected() {
-//        super.onServiceConnected()
-//        val config = AccessibilityServiceInfo();
-//        //配置监听的事件类型为界面变化|点击事件
-//        config.eventTypes = AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED.or(AccessibilityEvent.TYPE_VIEW_CLICKED).or(AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED)
-//        config.feedbackType = AccessibilityServiceInfo.FEEDBACK_GENERIC;
-//        config.flags = AccessibilityServiceInfo.FLAG_INCLUDE_NOT_IMPORTANT_VIEWS;
-//        serviceInfo = config;
-//    }
+    override fun onServiceConnected() {
+        super.onServiceConnected()
+        val config = AccessibilityServiceInfo();
+        //配置监听的事件类型为界面变化|点击事件
+        config.eventTypes = AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED.or(AccessibilityEvent.TYPE_VIEW_CLICKED).or(AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED).or(AccessibilityEvent.TYPE_VIEW_SCROLLED)
+        config.feedbackType = AccessibilityServiceInfo.FEEDBACK_GENERIC;
+        config.flags = AccessibilityServiceInfo.FLAG_INCLUDE_NOT_IMPORTANT_VIEWS;
+        serviceInfo = config;
+    }
 
     override fun onInterrupt() {}
 
@@ -53,6 +54,7 @@ class SuperService : AccessibilityService() {
         var nodeInfo = event.source //当前界面的可访问界点
 //        Log.d(TAG, eventTypeToString(eventType))
         Log.d(TAG,className)
+        println(event)
         when (eventType) {
             //点击事件
             AccessibilityEvent.TYPE_VIEW_CLICKED -> {
@@ -112,14 +114,14 @@ class SuperService : AccessibilityService() {
             //窗口改变事件
             AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED -> {
                 if(className == "com.tencent.mm.ui.LauncherUI") {
+                    val nodes = rootInActiveWindow
+                    if(nodes!=null) lastLauncherUI = nodes.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/bth")
                     //获取通讯录信息 one off
                     if(Hawk.get(Constant.GET_CONTACTS,false)){
                         Hawk.put(Constant.GET_CONTACTS,false)
                         contactToFile()
                         Hawk.put(Constant.DISPOSABLE_ACTION,false)
                     }
-                    val nodes = rootInActiveWindow
-                    if(nodes!=null) lastLauncherUI = nodes.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/bth")
                 }
                 if(className == "com.tencent.mm.ui.conversation.EnterpriseConversationUI") {
                     Thread.sleep(500)
