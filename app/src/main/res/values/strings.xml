@@ -14,7 +14,6 @@
     <string name="superwe">SuperWe</string>
     <string name="group_charge">打开群收款</string>
     <string name="record_action">录入行为</string>
-    <string name="repeat_action">重复行为</string>
     <string name="group_name">在此输入分组名称</string>
     <string name="friends_name">在此输入好友名称</string>
     <string name="sure">确定</string>
@@ -29,4 +28,10 @@
     <string name="contact_file">导出通讯录</string>
     <string name="fold_window">隐藏悬浮窗</string>
     <string name="redraw">重渲染</string>
+    <string name="finish_record">结束录制</string>
+    <string name="check_action_list">查看行为列表</string>
+    <string name="schedule_action">规划行为时间</string>
+    <string name="repeat_action">重复</string>
+    <string name="schedule">周期</string>
+    <string name="group_hint">存在同名分组，请更改分组名</string>
 </resources>

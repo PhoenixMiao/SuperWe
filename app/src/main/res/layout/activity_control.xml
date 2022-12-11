@@ -20,6 +20,15 @@
             android:orientation="vertical">
 
             <Button
+                android:id="@+id/btn_open_accessibility"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_weight="1"
+                android:text="@string/open_accessibility" />
+
+            <Button
                 android:id="@+id/cb_invite_friends_into_group"
                 android:layout_width="wrap_content"
                 android:layout_height="0dp"
@@ -53,7 +62,7 @@
                     android:id="@+id/group_name_repeat_warn_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="存在同名分组，请更改分组名"
+                    android:text="@string/group_hint"
                     android:textColor="#7A67EE"/>
 
             </LinearLayout>
@@ -217,11 +226,10 @@
                 android:layout_gravity="center_horizontal">
 
                 <Button
-                    android:id="@+id/btn_open_accessibility"
+                    android:id="@+id/btn_group_charge"
                     android:layout_width="140dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="1dp"
-                    android:text="@string/open_accessibility" />
+                    android:text="@string/group_charge" />
 
                 <Button
                     android:id="@+id/btn_open_wechat"
@@ -240,10 +248,10 @@
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="5dp">
                 <Button
-                    android:id="@+id/btn_group_charge"
+                    android:id="@+id/btn_record_action"
                     android:layout_width="140dp"
                     android:layout_height="wrap_content"
-                    android:text="@string/group_charge" />
+                    android:text="@string/record_action" />
 
                 <Button
                     android:id="@+id/btn_batch_read"
@@ -263,17 +271,17 @@
                 android:layout_marginTop="5dp">
 
                 <Button
-                    android:id="@+id/btn_record_action"
+                    android:id="@+id/btn_finish_record"
                     android:layout_width="140dp"
                     android:layout_height="wrap_content"
-                    android:text="@string/record_action" />
+                    android:text="@string/finish_record" />
 
                 <Button
-                    android:id="@+id/btn_repeat_action"
+                    android:id="@+id/btn_check_action_list"
                     android:layout_width="140dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="70dp"
-                    android:text="@string/repeat_action" />
+                    android:text="@string/check_action_list" />
 
             </LinearLayout>
 
@@ -298,6 +306,17 @@
                     android:layout_marginStart="70dp"
                     android:layout_marginTop="1dp"
                     android:text="@string/redraw" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:orientation="horizontal"
+                android:layout_gravity="center_horizontal">
+
+
+
             </LinearLayout>
 
 

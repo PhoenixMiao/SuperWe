@@ -24,7 +24,6 @@ class SuperService : AccessibilityService() {
     private var watcher = arrayListOf<Pair<String?,String?>>()
     private val disposableActionInterruptedHint = "正在进行的操作已被中断"
 
-
     companion object{
         @JvmField
         var isAuto = false
@@ -603,7 +602,8 @@ class SuperService : AccessibilityService() {
 
     private fun repeatAction() {
         var nodeInfo = rootInActiveWindow
-        val watcher = Hawk.get(Constant.WATCHER,arrayListOf<Pair<String?,String?>>())
+        val util : Action = Hawk.get(Constant.READY)
+        val watcher = util.value
         for(pair in watcher) {
             Thread.sleep(500)
             nodeInfo = rootInActiveWindow

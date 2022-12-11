@@ -30,7 +30,8 @@ class Constant {
 
         val RECORD_ACTION = "record_action"
         val REPEAT_ACTION = "repeat_action"
-        val REPEAT_LIST = "repeat_list"
+        val ACTIONS = "actions"
+        val READY = "ready"
 
         val WATCHER = "watcher"
 
