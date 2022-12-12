@@ -59,6 +59,10 @@ class ControlActivity : AppCompatActivity() {
                     drawerLayout.closeDrawers()
                     startActivity(Intent(this,EditFriendGroupActivity::class.java))
                 }
+                R.id.friend_information -> {
+                    drawerLayout.closeDrawers()
+                    startActivity(Intent(this,FriendInformationActivity::class.java))
+                }
                 else -> Log.d(
                     TAG,
                     "There still has some items of navigationView don't  config!"
@@ -362,7 +366,7 @@ class ControlActivity : AppCompatActivity() {
                     .permission(com.hjq.permissions.Permission.SYSTEM_ALERT_WINDOW)
                     .request(object : OnPermissionCallback {
                         override fun onGranted(granted: List<String>, all: Boolean) {
-                            xToast = showGlobalWindow(application)
+                            xToast = showGlobalWindow(application, btnFinishRecord)
                         }
 
                         override fun onDenied(denied: List<String>, never: Boolean) {
@@ -381,9 +385,8 @@ class ControlActivity : AppCompatActivity() {
         }
 
         btnRedraw.setOnClickListener {
-            val intent = Intent(Intent.ACTION_PICK, null)
-            intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*")
-            startActivityForResult(intent, 2)
+            val intent = Intent("com.example.superwe.redraw")
+            startActivity(intent)
         }
 
         btnCheckActionList.setOnClickListener {
@@ -393,7 +396,7 @@ class ControlActivity : AppCompatActivity() {
 
     }
 
-    fun showGlobalWindow(application: Application) : XToast<XToast<*>> {
+    fun showGlobalWindow(application: Application,btn : Button) : XToast<XToast<*>> {
         val xToast : XToast<XToast<*>> = XToast<XToast<*>>(application)
         // 传入 Application 表示这个是一个全局的 Toast
         xToast
@@ -444,11 +447,10 @@ class ControlActivity : AppCompatActivity() {
                     })
                     .setOnClickListener(R.id.icon4, object : XToast.OnClickListener<View?> {
                         override fun onClick(toast: XToast<*>, view: View?) {
-
+                            val intent = Intent("android.intent.action.MAIN")
                             toast.cancel()
-                            val intent = Intent("com.example.superwe.gap")
                             startActivity(intent)
-                            onPause()
+                            btn.callOnClick()
                         }
                     })
                     .show()
@@ -471,31 +473,6 @@ class ControlActivity : AppCompatActivity() {
     fun judgeAlertWindowPerssion(mContexts:Context,permission:String) : Boolean{
         return ContextCompat.checkSelfPermission(mContexts, permission) ==
                 PackageManager.PERMISSION_DENIED
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == 2) {
-            // 从相册返回的数据
-            if (data != null) {
-                // 得到图片的全路径
-                val imageUri : Uri? = data.getData();
-                if (imageUri != null) {
-                    val file = getFileByUri(imageUri,this)
-                    println(file.absolutePath)
-                    ActivityCompat.requestPermissions(
-                        this,
-                        arrayOf(
-                            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                            Manifest.permission.READ_EXTERNAL_STORAGE
-                        ),
-                        0
-                    )
-                    val path = redrawScreenshot(file)
-                    toast("screenshot saved at$path")
-                }
-            }
-        }
     }
 
     private fun toast(str: String) {

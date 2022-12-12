@@ -6,6 +6,7 @@ import android.app.Notification
 import android.app.PendingIntent
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.graphics.Rect
 import android.os.*
 import android.util.Log
 import android.view.accessibility.AccessibilityEvent
@@ -16,6 +17,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
+
 
 class SuperService : AccessibilityService() {
 
@@ -189,7 +191,9 @@ class SuperService : AccessibilityService() {
                     //自动回复
                     if(Hawk.get(Constant.AUTO_REPLY,false)) {
                         if(!Hawk.get(Constant.DISPOSABLE_ACTION,false)){
+                            Hawk.put(Constant.DISPOSABLE_ACTION,false)
                             fill()
+                            Hawk.put(Constant.DISPOSABLE_ACTION,true)
                         }
                     }
                     //自动点开红包
@@ -658,9 +662,46 @@ class SuperService : AccessibilityService() {
         }
     }
 
+    /*
+     * 计算聊天框间距
+     */
+    private fun getGap():Int {
+        val nodeInfo = rootInActiveWindow
+        val commu = nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/bth")
+        if (commu.size <= 1) return 1
+        val nodeRect1 = Rect()
+        val nodeRect2 = Rect()
+        commu[0].getBoundsInScreen(nodeRect1)
+        commu[1].getBoundsInScreen(nodeRect2)
+        return nodeRect2.centerY() - nodeRect1.centerY()
+    }
+    /*
+     * 得到未读消息索引列表
+     */
+    private fun getNotRead():ArrayList<Int>{
+        val nodeInfo = rootInActiveWindow
+        val target = nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/kmv")
+        val commu = nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/bth")
+        //获取聊天框间距
+        val gap = getGap()
+        //计算红点索引队列
+        val nodeRect1 = Rect()
+        val nodeRect2 = Rect()
+        target[0].getBoundsInScreen(nodeRect1)
+        commu[0].getBoundsInScreen(nodeRect2)
+        var cur = (nodeRect1.centerY() - nodeRect2.centerY()) / gap
+        var redCommu = arrayListOf(cur)
+        for (i in 1 until target.size) {
+            target[i].getBoundsInScreen(nodeRect1)
+            target[i-1].getBoundsInScreen(nodeRect2)
+            val y = (nodeRect1.centerY() - nodeRect2.centerY()) / gap + cur
+            redCommu.add(y)
+            cur = y
+        }
+        return redCommu
+    }
     /**
      * 执行遍历聊天框点击，消去红点
-     * 问题：仍然无法只点击红点消息
      */
     private fun batchRead() {
         var nodeInfo = rootInActiveWindow
@@ -682,30 +723,34 @@ class SuperService : AccessibilityService() {
                 top = nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/ebm")
                 if(top.size<=0 || !top[0].text.equals("折叠置顶聊天")){top=null}
                 //红点聊天框
-//                val target = nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/kmv")
+                val target = nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/kmv")
                 //当前所有聊天框
                 val commu = nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/bth")
-                if (commu.size==0){
-                    return
-                }
                 //翻页到底部则停止点击
                 if(commu[commu.size-1]==lastNode){
+
                     return
                 }
                 else{
                     lastNode = commu[commu.size-1]
                 }
-                //点击所有聊天框
-                for (i in 0 until commu.size-1) {
-                    if(top==null || commu[i] != top[0].parent)
-                    {
-                        commu[i].performAction(AccessibilityNodeInfo.ACTION_CLICK)
-                        Thread.sleep(800)
-                        nodeInfo = rootInActiveWindow
-                        nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/g0")[0].performAction(AccessibilityNodeInfo.ACTION_CLICK)
-                        Thread.sleep(1500)
+                if (target.size > 0){
+                    //获取未读消息索引
+                    val redCommu = getNotRead()
+                    //点击红点聊天框
+                    for (i in 0 until redCommu.size) {
+
+                        if(top==null || commu[redCommu[i]] != top[0].parent)
+                        {
+                            commu[redCommu[i]].performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                            Thread.sleep(800)
+                            nodeInfo = rootInActiveWindow
+                            nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/g0")[0].performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                            Thread.sleep(1500)
+                        }
                     }
                 }
+
                 //翻页
                 nodeInfo = rootInActiveWindow
                 val scrollNode = nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/gkp")[0]
@@ -715,7 +760,9 @@ class SuperService : AccessibilityService() {
             }
         }while (scroll)
     }
-
+    /*
+     * 批量回复未读消息
+     */
     private fun batchReply() {
         var nodeInfo = rootInActiveWindow
         var scroll = true
@@ -734,29 +781,38 @@ class SuperService : AccessibilityService() {
             if (nodeInfo != null) {
                 //当前所有聊天框
                 val commu = nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/bth")
-                if(commu.size<=0) shortToast("当前不处于“微信”页面，批量回复操作已停止")
+                //当前未读消息红点
+                val target = nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/kmv")
+                if(commu.size<=0) {
+
+                    return
+                }
                 //翻页到底部则停止点击
                 if(commu[commu.size-1]==lastNode){
+
                     return
                 }
                 else{
                     lastNode = commu[commu.size-1]
                 }
-                for (i in 0 until commu.size) {
-                    commu[i].performAction(AccessibilityNodeInfo.ACTION_CLICK)
-                    Thread.sleep(1000)
-                    val nodes = rootInActiveWindow
-                    findEditText(nodes,Hawk.get(Constant.BATCH_REPLY_CONTENT,"test"))
-                    Thread.sleep(1000)
-                    send()
-                    Thread.sleep(1000)
-                    nodeInfo = rootInActiveWindow
-                    if(nodeInfo.className!="android.widget.FrameLayout")
-                        shortToast("当前不处于聊天界面")
-                    nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/g0")[0].performAction(AccessibilityNodeInfo.ACTION_CLICK)
-                    Thread.sleep(1000)
+                if (target.size > 0) {
+                    //获取未读消息索引
+                    val redCommu = getNotRead()
+                    for (i in 0 until redCommu.size) {
+                        commu[redCommu[i]].performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                        Thread.sleep(1000)
+                        val nodes = rootInActiveWindow
+                        findEditText(nodes,Hawk.get(Constant.BATCH_REPLY_CONTENT,"test"))
+                        Thread.sleep(500)
+                        send()
+                        Thread.sleep(1000)
+                        nodeInfo = rootInActiveWindow
+                        if(nodeInfo.className!="android.widget.FrameLayout")
+                            shortToast("当前不处于聊天界面")
+                        nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/g0")[0].performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                        Thread.sleep(1000)
+                    }
                 }
-                Thread.sleep(1000)
                 //翻页
                 nodeInfo = rootInActiveWindow
                 val scrollNode = nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/gkp")
@@ -807,7 +863,7 @@ class SuperService : AccessibilityService() {
                     arguments
                 )
                 nodeInfo.performAction(AccessibilityNodeInfo.ACTION_FOCUS)
-                Looper.prepare()
+                if(Looper.myLooper() == null) Looper.prepare()
                 val clip = ClipData.newPlainText("label", content)
                 val clipboardManager = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
                 clipboardManager.setPrimaryClip(clip)
@@ -823,7 +879,7 @@ class SuperService : AccessibilityService() {
     }
 
     private fun send() {
-        Thread.sleep(50)
+        Thread.sleep(500)
         val nodeInfo = rootInActiveWindow
         if (nodeInfo != null) {
             val list = nodeInfo.findAccessibilityNodeInfosByText("发送")
@@ -922,8 +978,7 @@ class SuperService : AccessibilityService() {
                     // 到底结束下滑
                     if (page[0].getChild(0) == newPage[0].getChild(0)) end = true
                 }
-
-
+                shortToast("通讯录导出完成")
             }
         }
     }
