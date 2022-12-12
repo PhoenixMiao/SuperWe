@@ -9,5 +9,9 @@
             android:id="@+id/edit_group_item"
             android:title="编辑好友分组">
         </item>
+        <item
+            android:id="@+id/friend_information"
+            android:title="查看好友信息">
+        </item>
     </group>
 </menu>

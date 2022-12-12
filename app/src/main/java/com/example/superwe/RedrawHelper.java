@@ -18,6 +18,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -69,21 +70,26 @@ public class RedrawHelper {
         return null;
     }
 
-    public static String redrawScreenshot(File file) {
+    public static Uri redrawScreenshot(Context context,Uri uri) {
         Bitmap bitmap = null;
-        if (file == null) {
-            return "";
-        }
-        FileInputStream fis;
+//        if (file == null) {
+//            return "";
+//        }
+//        FileInputStream fis;
+//        try {
+//            fis = new FileInputStream(file);
+//            bitmap = BitmapFactory.decodeStream(fis);
+//            fis.close();
+//            if (bitmap != null) {
+//                System.out.println("bitmap is not null");
+//            } else {
+//                System.out.println("bitmap is null");
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
         try {
-            fis = new FileInputStream(file);
-            bitmap = BitmapFactory.decodeStream(fis);
-            fis.close();
-            if (bitmap != null) {
-                System.out.println("bitmap is not null");
-            } else {
-                System.out.println("bitmap is null");
-            }
+            bitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(), uri);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -99,16 +105,17 @@ public class RedrawHelper {
         canvas.drawRect(55,1665,225,1800,paint);
         canvas.drawRect(600,1665,770,1800,paint);
 
-        Date date = new Date();
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String fileName = df.format(date)+".png";
+//        Date date = new Date();
+//        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//        String fileName = df.format(date)+".png";
+//
+//        String sdCardPath = Environment.getExternalStorageDirectory().getPath();
+//        String filePath = sdCardPath + File.separator + "Superwe" + File.separator + "Screenshot" + File.separator + fileName;
 
-        String sdCardPath = Environment.getExternalStorageDirectory().getPath();
-        String filePath = sdCardPath + File.separator + "Superwe" + File.separator + "Screenshot" + File.separator + fileName;
+        Uri returnUri = Uri.parse(MediaStore.Images.Media.insertImage(context.getContentResolver(), bitmaps, null,null));
+//        savePic(bitmaps,filePath);
 
-        savePic(bitmaps,filePath);
-
-        return filePath;
+        return returnUri;
     }
 
     private static void savePic(Bitmap b, String strFileName) {
@@ -135,5 +142,6 @@ public class RedrawHelper {
             e.printStackTrace();
         }
     }
-
 }
+
+

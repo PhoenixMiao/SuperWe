@@ -43,6 +43,17 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".ImageActivity"
+            android:exported="true"
+            android:launchMode="singleTask">
+            <intent-filter>
+                <action android:name="com.example.superwe.redraw" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
         <service
             android:name=".SuperService"
             android:enabled="true"
@@ -56,6 +67,10 @@
                 android:name="android.accessibilityservice"
                 android:resource="@xml/accessibility_service_config" />
         </service>
+
+        <activity
+            android:name=".FriendInformationActivity"
+            android:exported="true" />
 
         <activity
             android:name=".ControlActivity"
