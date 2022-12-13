@@ -13,10 +13,22 @@
         <entry key="..\:/Lesson Lecture/Android/v1/app/src/main/res/menu/nav_menu.xml" value="0.11197916666666667" />
         <entry key="..\:/SuperWe/app/src/main/res/layout/action_item.xml" value="0.165" />
         <entry key="..\:/SuperWe/app/src/main/res/layout/activity_action.xml" value="0.21666666666666667" />
-        <entry key="..\:/SuperWe/app/src/main/res/layout/activity_control.xml" value="0.23541666666666666" />
+        <entry key="..\:/SuperWe/app/src/main/res/layout/activity_configuration.xml" value="0.21666666666666667" />
+        <entry key="..\:/SuperWe/app/src/main/res/layout/activity_control.xml" value="0.12643678160919541" />
+        <entry key="..\:/SuperWe/app/src/main/res/layout/activity_edit_friend_group.xml" value="0.21666666666666667" />
+        <entry key="..\:/SuperWe/app/src/main/res/layout/activity_edit_friend_group_dialog.xml" value="0.21666666666666667" />
+        <entry key="..\:/SuperWe/app/src/main/res/layout/activity_friend_information.xml" value="0.21666666666666667" />
         <entry key="..\:/SuperWe/app/src/main/res/layout/activity_gap.xml" value="0.1" />
         <entry key="..\:/SuperWe/app/src/main/res/layout/activity_gap2.xml" value="0.1" />
+        <entry key="..\:/SuperWe/app/src/main/res/layout/activity_image.xml" value="0.21666666666666667" />
         <entry key="..\:/SuperWe/app/src/main/res/layout/activity_main.xml" value="0.14175724637681159" />
+        <entry key="..\:/SuperWe/app/src/main/res/layout/configuration_item.xml" value="0.21666666666666667" />
+        <entry key="..\:/SuperWe/app/src/main/res/layout/friend_information_item.xml" value="0.21666666666666667" />
+        <entry key="..\:/SuperWe/app/src/main/res/layout/friend_list_item.xml" value="0.21666666666666667" />
+        <entry key="..\:/SuperWe/app/src/main/res/layout/nav_header.xml" value="0.21666666666666667" />
+        <entry key="..\:/SuperWe/app/src/main/res/layout/window_hint.xml" value="0.21666666666666667" />
+        <entry key="..\:/SuperWe/app/src/main/res/layout/window_wechat.xml" value="0.21666666666666667" />
+        <entry key="..\:/SuperWe/app/src/main/res/menu/nav_menu.xml" value="0.1" />
         <entry key="..\:/andriodProject/super-we-20221203/app/src/main/res/drawable-v24/dialog_toast_bg.xml" value="0.1215" />
         <entry key="..\:/andriodProject/super-we-20221203/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.1" />
         <entry key="..\:/andriodProject/super-we-20221203/app/src/main/res/drawable/check_box_white_button.xml" value="0.144" />
@@ -36,8 +48,6 @@
         <entry key="..\:/andriodProject/super-we-20221203/app/src/main/res/layout/window_hint.xml" value="0.15416666666666667" />
         <entry key="..\:/andriodProject/super-we-20221203/app/src/main/res/layout/window_wechat.xml" value="0.15416666666666667" />
         <entry key="..\:/andriodProject/super-we-20221203/app/src/main/res/menu/nav_menu.xml" value="0.176" />
-        <entry key="..\:/super-we-ffinal/app/src/main/res/layout/activity_control.xml" value="0.36614583333333334" />
-        <entry key="..\:/super-we-ffinal/app/src/main/res/layout/friend_information_item.xml" value="0.1875" />
         <entry key="..\:/super-we/app/src/main/res/drawable-v24/dialog_toast_bg.xml" value="0.128" />
         <entry key="..\:/super-we/app/src/main/res/drawable/check_box_style.xml" value="0.1945" />
         <entry key="..\:/super-we/app/src/main/res/drawable/ic_launcher_background.xml" value="0.1955" />

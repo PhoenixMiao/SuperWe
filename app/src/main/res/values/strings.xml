@@ -34,4 +34,7 @@
     <string name="repeat_action">重复</string>
     <string name="schedule">周期</string>
     <string name="group_hint">存在同名分组，请更改分组名</string>
+    <string name="check_configuration">查看配置详情</string>
+    <string name="edit_friends_group">编辑好友分组</string>
+    <string name="check_friends_information">查看好友信息</string>
 </resources>
