@@ -99,12 +99,12 @@ class SuperService : AccessibilityService() {
                         watcher = list
                         watcher.add(Pair<String?,String?>("send",messages[messages.size-1].text.toString()))
                     }
-                    else if(nodeInfo.className=="android.widget.EditText") watcher.add(Pair<String?,String?>("input",""))
-                    else if(nodeInfo.viewIdResourceName!=null) watcher.add(Pair<String?,String?>(nodeInfo.viewIdResourceName,""))
-                    else if(nodeInfo.text!=null) watcher.add(Pair<String?,String?>(nodeInfo.viewIdResourceName,nodeInfo.text.toString()))
+                    else if(nodeInfo!=null && nodeInfo.className=="android.widget.EditText") watcher.add(Pair<String?,String?>("input",""))
+                    else if(nodeInfo!=null && nodeInfo.viewIdResourceName!=null) watcher.add(Pair<String?,String?>(nodeInfo.viewIdResourceName,""))
+                    else if(nodeInfo!=null && nodeInfo.text!=null) watcher.add(Pair<String?,String?>(nodeInfo.viewIdResourceName,nodeInfo.text.toString()))
                     else {
                         var ch = ""
-                        while(ch == "" && nodeInfo.childCount>0 && nodeInfo.getChild(0).text!=null) {
+                        while(ch == "" && nodeInfo!=null && nodeInfo.childCount>0 && nodeInfo.getChild(0).text!=null) {
                             ch = nodeInfo.getChild(0).text.toString()
                             nodeInfo = nodeInfo.getChild(0)
                         }
