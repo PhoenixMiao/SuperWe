@@ -101,9 +101,12 @@ public class RedrawHelper {
         Paint paint = new Paint();
         paint.setColor(Color.RED);
         paint.setStyle(Paint.Style.STROKE);
+        paint.setTextSize(80);
         paint.setStrokeWidth(10);
-        canvas.drawRect(55,1665,225,1800,paint);
-        canvas.drawRect(600,1665,770,1800,paint);
+        canvas.drawText("微信",55,2150,paint);
+        canvas.drawText("发现",600,2150,paint);
+        canvas.drawRect(55,2200,225,2340,paint);
+        canvas.drawRect(600,2200,770,2340,paint);
 
 //        Date date = new Date();
 //        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -111,7 +114,6 @@ public class RedrawHelper {
 //
 //        String sdCardPath = Environment.getExternalStorageDirectory().getPath();
 //        String filePath = sdCardPath + File.separator + "Superwe" + File.separator + "Screenshot" + File.separator + fileName;
-
         Uri returnUri = Uri.parse(MediaStore.Images.Media.insertImage(context.getContentResolver(), bitmaps, null,null));
 //        savePic(bitmaps,filePath);
 
