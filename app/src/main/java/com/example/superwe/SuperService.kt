@@ -6,6 +6,7 @@ import android.app.Notification
 import android.app.PendingIntent
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.content.ContentValues
 import android.graphics.Rect
 import android.os.*
 import android.util.Log
@@ -403,12 +404,19 @@ class SuperService : AccessibilityService() {
                         val list = rootInActiveWindow.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/j55")
                         if(list.size>0){
                             val cbNodes = list[0].findAccessibilityNodeInfosByText(members[i].trim())
+                            val checkbox = list[0].findAccessibilityNodeInfosByViewId("com.tencent.mm:id/j9g")
                             if (cbNodes != null) {
-                                val cbNode: AccessibilityNodeInfo?
+                                var cbNode: AccessibilityNodeInfo?
                                 if (cbNodes.size > 0) {
                                     cbNode = cbNodes[0]
-                                    cbNode?.parent?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-                                    Thread.sleep(500)
+                                    if(cbNode.text.toString().equals(members[i].trim())){
+                                        checkbox[0].performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                                        while(cbNode!=null){
+                                            cbNode?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                                            cbNode=cbNode.parent
+                                        }
+                                        Thread.sleep(500)
+                                    }
                                 }
                             }
                         }
@@ -704,6 +712,7 @@ class SuperService : AccessibilityService() {
      * 执行遍历聊天框点击，消去红点
      */
     private fun batchRead() {
+        Thread.sleep(1000)
         var nodeInfo = rootInActiveWindow
         var scroll = true
         var lastNode = nodeInfo
@@ -952,21 +961,28 @@ class SuperService : AccessibilityService() {
                         } else {
                             contactPerson.add(name[0].text.toString())
                         }
+                        val values = ContentValues()
+                        values.put("name",name[0].text.toString())
                         writeTextToFile(name[0].text.toString())
                         if (nickname.size == 0) {
                             val str = "昵称:  " + name[0].text.toString()
                             writeTextToFile(str)
+                            values.put("nickname",name[0].text.toString())
                         } else {
                             writeTextToFile(nickname[0].text.toString())
+                            values.put("nickname",nickname[0].text.toString())
                         }
                         writeTextToFile(number[0].text.toString())
+                        values.put("wx",number[0].text.toString())
                         if (position.size == 0) {
                             writeTextToFile("地区:  暂无")
+                            values.put("location","暂无")
                         } else {
                             writeTextToFile(position[0].text.toString())
+                            values.put("location",position[0].text.toString())
                         }
                         writeTextToFile(" ")
-
+                        SuperWeDatabaseUtils.add(this,"friend_info",values)
                         node.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/g0")[0].performAction(AccessibilityNodeInfo.ACTION_CLICK)
                         Thread.sleep(1000)
                     }
