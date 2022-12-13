@@ -28,7 +28,7 @@ public class FriendInformationActivity extends AppCompatActivity {
             @SuppressLint("Range") FriendInformation friendInformation = new FriendInformation(cursor.getString(cursor.getColumnIndex("name")),
                     cursor.getString(cursor.getColumnIndex("nickname")),
                     cursor.getString(cursor.getColumnIndex("wx")),
-                    cursor.getString(cursor.getColumnIndex("position")));
+                    cursor.getString(cursor.getColumnIndex("location")));
             list.add(friendInformation);
         }
         //渲染list

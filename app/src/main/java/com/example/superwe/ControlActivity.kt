@@ -188,6 +188,7 @@ class ControlActivity : AppCompatActivity() {
 
         btnContactFile.setOnClickListener{
             val intent = packageManager.getLaunchIntentForPackage("com.tencent.mm")
+            SuperWeDatabaseUtils.delete(this,"friend_info",null,null)
             Hawk.put(Constant.GET_CONTACTS,true)
             Hawk.put(Constant.DISPOSABLE_ACTION,true)
             startActivity(intent)

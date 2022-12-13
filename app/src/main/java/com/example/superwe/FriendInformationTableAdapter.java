@@ -23,10 +23,6 @@ public class FriendInformationTableAdapter extends ArrayAdapter {
         inflater = LayoutInflater.from(context);
     }
 
-    public FriendInformationTableAdapter(@NonNull Context context, int resource, int textViewResourceId) {
-        super(context, resource, textViewResourceId);
-    }
-
     @Override
     public int getCount() {
         int ret = 0;
@@ -57,7 +53,7 @@ public class FriendInformationTableAdapter extends ArrayAdapter {
 
             viewHolder = new ViewHolder();
 
-            convertView = inflater.inflate(R.layout.configuration_item, parent,false);
+            convertView = inflater.inflate(R.layout.friend_information_item, parent,false);
             viewHolder.name = convertView.findViewById(R.id.name);
             viewHolder.nickname = convertView.findViewById(R.id.nickname);
             viewHolder.wx = convertView.findViewById(R.id.wx);
