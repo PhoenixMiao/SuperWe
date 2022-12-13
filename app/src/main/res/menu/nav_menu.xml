@@ -3,15 +3,15 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/configuration_details_item"
-            android:title="查看配置详情">
+            android:title="@string/check_configuration">
         </item>
         <item
             android:id="@+id/edit_group_item"
-            android:title="编辑好友分组">
+            android:title="@string/edit_friends_group">
         </item>
         <item
             android:id="@+id/friend_information"
-            android:title="查看好友信息">
+            android:title="@string/check_friends_information">
         </item>
     </group>
 </menu>

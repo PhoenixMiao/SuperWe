@@ -3,6 +3,7 @@ package com.example.superwe
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Application
+import android.content.ComponentName
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
@@ -182,12 +183,20 @@ class ControlActivity : AppCompatActivity() {
         })
 
         btnOpenWechat.setOnClickListener {
-            val intent = packageManager.getLaunchIntentForPackage("com.tencent.mm")
+            val intent = Intent(Intent.ACTION_MAIN)
+            val cmp = ComponentName("com.tencent.mm","com.tencent.mm.ui.LauncherUI")
+            intent.addCategory(Intent.CATEGORY_LAUNCHER)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            intent.component = cmp
             startActivity(intent)
         }
 
         btnContactFile.setOnClickListener{
-            val intent = packageManager.getLaunchIntentForPackage("com.tencent.mm")
+            val intent = Intent(Intent.ACTION_MAIN)
+            val cmp = ComponentName("com.tencent.mm","com.tencent.mm.ui.LauncherUI")
+            intent.addCategory(Intent.CATEGORY_LAUNCHER)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            intent.component = cmp
             SuperWeDatabaseUtils.delete(this,"friend_info",null,null)
             Hawk.put(Constant.GET_CONTACTS,true)
             Hawk.put(Constant.DISPOSABLE_ACTION,true)
@@ -255,7 +264,11 @@ class ControlActivity : AppCompatActivity() {
                 shortToast("已帮您将\""+group+"\"添加至好友分组列表")
                 Hawk.put(Constant.ADDING_FRIENDS_INTO_GROUP,true)
                 Hawk.put(Constant.DISPOSABLE_ACTION,true)
-                val intent = packageManager.getLaunchIntentForPackage("com.tencent.mm")
+                val intent = Intent(Intent.ACTION_MAIN)
+                val cmp = ComponentName("com.tencent.mm","com.tencent.mm.ui.LauncherUI")
+                intent.addCategory(Intent.CATEGORY_LAUNCHER)
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                intent.component = cmp
                 startActivity(intent)
             }
         }
@@ -329,26 +342,42 @@ class ControlActivity : AppCompatActivity() {
             Hawk.put(Constant.BATCH_REPLY_CONTENT,contents)
             Hawk.put(Constant.BATCH_REPLY,true)
             Hawk.put(Constant.DISPOSABLE_ACTION,true)
-            val intent = packageManager.getLaunchIntentForPackage("com.tencent.mm")
+            val intent = Intent(Intent.ACTION_MAIN)
+            val cmp = ComponentName("com.tencent.mm","com.tencent.mm.ui.LauncherUI")
+            intent.addCategory(Intent.CATEGORY_LAUNCHER)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            intent.component = cmp
             startActivity(intent)
         }
 
         btnGroupCharge.setOnClickListener {
             Hawk.put(Constant.GROUP_CHARGE,true)
             Hawk.put(Constant.DISPOSABLE_ACTION,true)
-            val intent = packageManager.getLaunchIntentForPackage("com.tencent.mm")
+            val intent = Intent(Intent.ACTION_MAIN)
+            val cmp = ComponentName("com.tencent.mm","com.tencent.mm.ui.LauncherUI")
+            intent.addCategory(Intent.CATEGORY_LAUNCHER)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            intent.component = cmp
             startActivity(intent)
         }
 
 //        btnRepeatAction.setOnClickListener {
-//            val intent = packageManager.getLaunchIntentForPackage("com.tencent.mm")
+//            val intent = Intent(Intent.ACTION_MAIN)
+//            val cmp = ComponentName("com.tencent.mm","com.tencent.mm.ui.LauncherUI")
+//            intent.addCategory(Intent.CATEGORY_LAUNCHER)
+//            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+//            intent.component = cmp
 //            Hawk.put(Constant.REPEAT_ACTION,true)
 //            Hawk.put(Constant.DISPOSABLE_ACTION,true)
 //            startActivity(intent)
 //        }
 
         btnRecordAction.setOnClickListener {
-            val intent = packageManager.getLaunchIntentForPackage("com.tencent.mm")
+            val intent = Intent(Intent.ACTION_MAIN)
+            val cmp = ComponentName("com.tencent.mm","com.tencent.mm.ui.LauncherUI")
+            intent.addCategory(Intent.CATEGORY_LAUNCHER)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            intent.component = cmp
             Hawk.put(Constant.RECORD_ACTION,true)
             Hawk.put(Constant.DISPOSABLE_ACTION,true)
             startActivity(intent)
@@ -356,7 +385,11 @@ class ControlActivity : AppCompatActivity() {
 
         btnBatchRead.setOnClickListener {
             Hawk.put(Constant.BATCH_READ,true)
-            val intent = packageManager.getLaunchIntentForPackage("com.tencent.mm")
+            val intent = Intent(Intent.ACTION_MAIN)
+            val cmp = ComponentName("com.tencent.mm","com.tencent.mm.ui.LauncherUI")
+            intent.addCategory(Intent.CATEGORY_LAUNCHER)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            intent.component = cmp
             Hawk.put(Constant.DISPOSABLE_ACTION,true)
             startActivity(intent)
         }
@@ -425,7 +458,11 @@ class ControlActivity : AppCompatActivity() {
                         override fun onClick(toast: XToast<*>, view: View?) {
                             Hawk.put(Constant.GROUP_CHARGE, true)
                             toast.cancel()
-                            val intent = packageManager.getLaunchIntentForPackage("com.tencent.mm")
+                            val intent = Intent(Intent.ACTION_MAIN)
+                            val cmp = ComponentName("com.tencent.mm","com.tencent.mm.ui.LauncherUI")
+                            intent.addCategory(Intent.CATEGORY_LAUNCHER)
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            intent.component = cmp
                             startActivity(intent)
                         }
                     })
@@ -448,7 +485,11 @@ class ControlActivity : AppCompatActivity() {
                     })
                     .setOnClickListener(R.id.icon4, object : XToast.OnClickListener<View?> {
                         override fun onClick(toast: XToast<*>, view: View?) {
-                            val intent = Intent("android.intent.action.MAIN")
+                            val intent = Intent(Intent.ACTION_MAIN)
+                            val cmp = ComponentName("com.example.superwe","com.example.superwe.ControlActivity")
+                            intent.addCategory(Intent.CATEGORY_LAUNCHER)
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            intent.component = cmp
                             toast.cancel()
                             startActivity(intent)
                             btn.callOnClick()
