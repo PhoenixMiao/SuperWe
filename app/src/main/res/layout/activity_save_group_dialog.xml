@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background"
+    android:orientation="vertical"
+    tools:context=".SaveGroupDialogActivity">
+
+    <TextView
+        android:layout_margin="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        android:text="请问是否保存此分组？"/>
+
+    <EditText
+        android:id="@+id/group_name_edit_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:textColorHint="#999999"
+        android:textColor="@color/white"
+        android:maxLength="20"
+        android:hint="填写分组名称，不可为空，最多20个字符"
+        android:inputType="text"/>
+
+    <TextView
+        android:id="@+id/repeat_warn_text"
+        android:layout_margin="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="分组名已存在"
+        android:textColor="@color/white"
+        android:layout_gravity="center"/>
+
+    <TextView
+        android:id="@+id/empty_warn_text"
+        android:layout_margin="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="分组名不能为空"
+        android:textColor="@color/white"
+        android:layout_gravity="center"/>
+
+    <LinearLayout
+        android:layout_margin="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center">
+        <Button
+            android:id="@+id/not_save_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="取消"/>
+
+        <Button
+            android:id="@+id/save_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="确认保存"/>
+    </LinearLayout>
+
+</LinearLayout>

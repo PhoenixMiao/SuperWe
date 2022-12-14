@@ -11,10 +11,7 @@ import android.content.pm.PackageManager
 import android.database.Cursor
 import android.net.Uri
 import android.os.Bundle
-import android.provider.MediaStore
 import android.provider.Settings
-import android.text.Editable
-import android.text.TextWatcher
 import android.util.Log
 import android.view.Gravity
 import android.view.MenuItem
@@ -24,11 +21,8 @@ import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
-import com.example.superwe.RedrawHelper.getFileByUri
-import com.example.superwe.RedrawHelper.redrawScreenshot
 import com.example.superwe.toast.XToast
 import com.example.superwe.toast.draggable.SpringDraggable
 import com.google.android.material.navigation.NavigationView
@@ -44,6 +38,8 @@ class ControlActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         Log.d(TAG,"ControlActivity is created")
         setContentView(R.layout.activity_control)
+
+        //初始化滑动菜单
         supportActionBar?.let {
             it.setDisplayHomeAsUpEnabled(true)
             it.setHomeAsUpIndicator(R.drawable.more)
@@ -71,8 +67,9 @@ class ControlActivity : AppCompatActivity() {
             }
             true
         }
-
         Hawk.put(Constant.DISPOSABLE_ACTION,false)
+
+        //初始化主界面
         initView()
     }
 
@@ -84,43 +81,10 @@ class ControlActivity : AppCompatActivity() {
         return true
     }
 
-//    @SuppressLint("Range")
-//    private fun initSpinner(){
-//        val spinner : Spinner = findViewById(R.id.group_name_spinner)
-//        var list: ArrayList<String> = arrayListOf<String>()
-//        var cursor:Cursor = SuperWeDatabaseUtils.query(this,"friend_group",null,null,null);
-//        while (cursor.moveToNext()){
-//            list.add(cursor.getString(cursor.getColumnIndex("group_name")))
-//        }
-//        var adapter : ArrayAdapter<String> = ArrayAdapter(this, android.R.layout.simple_spinner_item, list)
-//        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-//        spinner.setAdapter(adapter)
-//
-//        spinner.onItemSelectedListener= object : AdapterView.OnItemSelectedListener {
-//            override fun onItemSelected(
-//                parent: AdapterView<*>?,
-//                view: View?,
-//                position: Int,
-//                id: Long
-//            ) {
-//                val group_name = list[position]
-//                var cursor:Cursor = SuperWeDatabaseUtils.query(this@ControlActivity,"friend_group",null,"group_name=?",arrayOf(group_name))
-//                if(cursor.moveToNext()){
-//                    val editGroup : EditText = findViewById(R.id.edit_group)
-//                    val editFriends : EditText = findViewById(R.id.edit_friends)
-//                    editGroup.setText( cursor.getString(cursor.getColumnIndex("group_name")))
-//                    editFriends.setText( cursor.getString(cursor.getColumnIndex("friends_list")) )
-//
-//                }
-//            }
-//            override fun onNothingSelected(parent: AdapterView<*>?) {
-//            }
-//        }
-//    }
-
     @SuppressLint("Range")
+    //初始化主界面
     private fun initView() {
-
+        initSpinner()
         Hawk.put(Constant.ANOTHER_AUTO_ZAN,false)
         //开启一次性操作组件
         val btnAddFriendsIntoGroup : Button = findViewById(R.id.cb_invite_friends_into_group)
@@ -135,11 +99,11 @@ class ControlActivity : AppCompatActivity() {
         val cbAutoReceiveLuckyMoney : CheckBox = findViewById(R.id.cb_lucky_money)
         val cbAutoReply : CheckBox = findViewById(R.id.auto_reply)
         //辅助组件
+        val spinner : Spinner = findViewById(R.id.group_name_spinner)
         val btnOpenWechat : Button = findViewById(R.id.btn_open_wechat)
         val btnOpenAccessbility : Button = findViewById(R.id.btn_open_accessibility)
         val btnReset : Button = findViewById(R.id.btn_reset)
         val btnSure : Button = findViewById(R.id.btn_sure)
-        val editGroup : EditText = findViewById(R.id.edit_group)
         val editFriends : EditText = findViewById(R.id.edit_friends)
         val autoReplyContent : EditText = findViewById(R.id.auto_reply_content)
         val btnCheck : Button = findViewById(R.id.content_check)
@@ -148,39 +112,17 @@ class ControlActivity : AppCompatActivity() {
         val btnDisplayWindow : Button = findViewById(R.id.btn_display_window)
         val btnFoldWindow : Button = findViewById(R.id.btn_fold_window)
         var xToast : XToast<XToast<*>> = XToast<XToast<*>>(application)
-        val groupNameRepeat : TextView = findViewById(R.id.group_name_repeat_warn_text)
         val btnFinishRecord : Button = findViewById(R.id.btn_finish_record)
         val btnCheckActionList : Button = findViewById(R.id.btn_check_action_list)
 
-        editGroup.visibility = View.GONE
         editFriends.visibility = View.GONE
         autoReplyContent.visibility = View.GONE
         btnCheck.visibility = View.GONE
         batchReplyContent.visibility = View.GONE
         btnConfirm.visibility = View.GONE
         btnSure.visibility = View.GONE
+        spinner.visibility=View.GONE
         btnReset.visibility = View.GONE
-        groupNameRepeat.visibility = View.GONE
-        val context = this
-
-        editGroup.addTextChangedListener(object : TextWatcher{
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-            }
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                val cursor = SuperWeDatabaseUtils.query(context,"friend_group",null,"group_name=?",arrayOf(s.toString()))
-                if(cursor.moveToNext()){
-                    groupNameRepeat.visibility = View.VISIBLE
-                }
-                else{
-                    groupNameRepeat.visibility = View.GONE
-                }
-            }
-
-            override fun afterTextChanged(s: Editable?) {
-            }
-
-        })
 
         btnOpenWechat.setOnClickListener {
             val intent = Intent(Intent.ACTION_MAIN)
@@ -217,58 +159,38 @@ class ControlActivity : AppCompatActivity() {
 
         btnReset.setOnClickListener {
             editFriends.setText("")
-            editGroup.setText("")
         }
 
         btnAddFriendsIntoGroup.setOnClickListener {
             if(btnSure.visibility==View.GONE){
-                editGroup.visibility = View.VISIBLE
                 editFriends.visibility = View.VISIBLE
                 btnReset.visibility = View.VISIBLE
                 btnSure.visibility = View.VISIBLE
-                editGroup.setText(Hawk.get(Constant.GROUP_NAME,""))
+                spinner.visibility = View.VISIBLE
                 editFriends.setText(Hawk.get(Constant.FRIEND_LIST,""))
             }
             else if(btnSure.visibility==View.VISIBLE){
-                val group = editGroup.text.toString()
                 val friends = editFriends.text.toString()
-                Hawk.put(Constant.GROUP_NAME, group)
                 Hawk.put(Constant.FRIEND_LIST,friends)
-                editGroup.visibility = View.GONE
                 editFriends.visibility = View.GONE
                 btnReset.visibility = View.GONE
                 btnSure.visibility = View.GONE
-                groupNameRepeat.visibility = View.GONE
+                spinner.visibility = View.GONE
             }
         }
 
         btnSure.setOnClickListener {
-            val group = editGroup.text.toString()
             val friends = editFriends.text.toString()
-            Hawk.put(Constant.GROUP_NAME, group)
             Hawk.put(Constant.FRIEND_LIST,friends)
-            val cursor = SuperWeDatabaseUtils.query(this,"friend_group",null,"group_name=?",arrayOf(group))
-            if(cursor.moveToNext()){
-                AlertDialog.Builder(this).apply {
-                    setTitle("提示")
-                    setMessage("当前分组名与已有分组名重复，请更改")
-                    setPositiveButton("确认"){dialog,which->}
-                }.show()
+            var cursor:Cursor=SuperWeDatabaseUtils.query(this,"friend_group",null,"friends_list=?", arrayOf(friends))
+            if(!cursor.moveToNext()){
+                val intent1 = Intent(this,SaveGroupDialogActivity::class.java)
+                startActivityForResult(intent1,1)
             }
             else{
-                val contentValues = ContentValues().apply {
-                    put("friends_list",friends)
-                    put("group_name",group)
-                }
-                SuperWeDatabaseUtils.add(this,"friend_group",contentValues)
-                shortToast("已帮您将\""+group+"\"添加至好友分组列表")
                 Hawk.put(Constant.ADDING_FRIENDS_INTO_GROUP,true)
                 Hawk.put(Constant.DISPOSABLE_ACTION,true)
-                val intent = Intent(Intent.ACTION_MAIN)
-                val cmp = ComponentName("com.tencent.mm","com.tencent.mm.ui.LauncherUI")
-                intent.addCategory(Intent.CATEGORY_LAUNCHER)
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                intent.component = cmp
+                val intent = packageManager.getLaunchIntentForPackage("com.tencent.mm")
                 startActivity(intent)
             }
         }
@@ -285,7 +207,7 @@ class ControlActivity : AppCompatActivity() {
                 Hawk.put(Constant.ACTIONS,actions)
                 Hawk.put(Constant.WATCHER,arrayListOf<Pair<String?,String?>>())
             }
-            setNegativeButton("取消") {dialog,which->
+            setNegativeButton("取消") { _, _ ->
             }
         }
         val dialog : AlertDialog = alertDialog.create()
@@ -504,18 +426,78 @@ class ControlActivity : AppCompatActivity() {
     /**
      * 判断是否缺少”无障碍服务“权限
      */
-    fun judgeAccessbilityServicePerssion(mContexts:Context,permission:String) : Boolean{
-        return ContextCompat.checkSelfPermission(mContexts, permission) ==
-                PackageManager.PERMISSION_DENIED
-    }
+//    fun judgeAccessbilityServicePerssion(mContexts:Context,permission:String) : Boolean{
+//        return ContextCompat.checkSelfPermission(mContexts, permission) ==
+//                PackageManager.PERMISSION_DENIED
+//    }
 
     /**
      * 判断是否缺少”悬浮窗“权限
      */
-    fun judgeAlertWindowPerssion(mContexts:Context,permission:String) : Boolean{
-        return ContextCompat.checkSelfPermission(mContexts, permission) ==
-                PackageManager.PERMISSION_DENIED
+//    fun judgeAlertWindowPerssion(mContexts:Context,permission:String) : Boolean{
+//        return ContextCompat.checkSelfPermission(mContexts, permission) ==
+//                PackageManager.PERMISSION_DENIED
+//    }
+
+    //初始化下拉列表
+    @SuppressLint("Range")
+    private fun initSpinner(){
+        val spinner : Spinner = findViewById(R.id.group_name_spinner)
+        var list: ArrayList<String> = arrayListOf<String>()
+        list.add("请选择分组")
+        var cursor: Cursor = SuperWeDatabaseUtils.query(this,"friend_group",null,null,null);
+        while (cursor.moveToNext()){
+            list.add(cursor.getString(cursor.getColumnIndex("group_name")))
+        }
+        var adapter : ArrayAdapter<String> = ArrayAdapter(this, android.R.layout.simple_spinner_item, list)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinner.setAdapter(adapter)
+
+        spinner.onItemSelectedListener= object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                val editFriends : EditText = findViewById(R.id.edit_friends)
+                if(position==0){
+                    editFriends.hint="请选择分组 或 填入新的好友列表"
+                }
+                else{
+                    val group_name = list[position]
+                    var cursor: Cursor = SuperWeDatabaseUtils.query(this@ControlActivity,"friend_group",null,"group_name=?",arrayOf(group_name))
+                    if(cursor.moveToNext()){
+                        editFriends.setText( cursor.getString(cursor.getColumnIndex("friends_list")) )
+                    }
+                }
+            }
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+            }
+        }
     }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if(requestCode==1){
+            val temp : EditText = findViewById(R.id.edit_friends)
+            val friends = temp.text.toString()
+            val save = data?.getBooleanExtra("save",false)
+            if(save == true){
+                val contentValues = ContentValues().apply {
+                    put("friends_list",friends)
+                    put("group_name",data?.getStringExtra("name"))
+                }
+                SuperWeDatabaseUtils.add(this,"friend_group",contentValues)
+                shortToast("已帮您将\""+data?.getStringExtra("name")+"\"添加至好友分组列表")
+            }
+            Hawk.put(Constant.ADDING_FRIENDS_INTO_GROUP,true)
+            Hawk.put(Constant.DISPOSABLE_ACTION,true)
+            val intent = packageManager.getLaunchIntentForPackage("com.tencent.mm")
+            startActivity(intent)
+        }
+    }
+
 
     private fun toast(str: String) {
         Toast.makeText(this, str, Toast.LENGTH_LONG).show()
