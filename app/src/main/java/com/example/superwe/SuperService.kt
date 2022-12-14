@@ -387,7 +387,7 @@ class SuperService : AccessibilityService() {
     private fun addMembers() {
         val friend_list_str = Hawk.get(Constant.FRIEND_LIST,"")
         if( friend_list_str!= "") {
-            val members = friend_list_str.split("\n")
+            val members = friend_list_str.split("\n"," ")
             if (members.size > 0) {
                 for (i in 0 until members.size) {
                         val nodeInfo = rootInActiveWindow

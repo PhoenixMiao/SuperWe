@@ -20,6 +20,10 @@
         android:theme="@style/Theme.SuperWe"
         tools:targetApi="31">
         <activity
+            android:name=".SaveGroupDialogActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.Dialog"/>
+        <activity
             android:name=".ActionActivity"
             android:exported="false" />
         <activity
@@ -42,7 +46,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".ImageActivity"
             android:exported="true"
@@ -71,7 +74,6 @@
         <activity
             android:name=".FriendInformationActivity"
             android:exported="true" />
-
         <activity
             android:name=".ControlActivity"
             android:exported="true">
