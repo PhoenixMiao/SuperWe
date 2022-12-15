@@ -73,6 +73,16 @@ class ControlActivity : AppCompatActivity() {
         initView()
     }
 
+    override fun onStart() {
+        super.onStart()
+        updateSpinner()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        updateSpinner()
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val drawerLayout : DrawerLayout= findViewById(R.id.drawerLayout)
         when (item.itemId){
@@ -84,7 +94,7 @@ class ControlActivity : AppCompatActivity() {
     @SuppressLint("Range")
     //初始化主界面
     private fun initView() {
-        initSpinner()
+        updateSpinner()
         Hawk.put(Constant.ANOTHER_AUTO_ZAN,false)
         //开启一次性操作组件
         val btnAddFriendsIntoGroup : Button = findViewById(R.id.cb_invite_friends_into_group)
@@ -451,9 +461,10 @@ class ControlActivity : AppCompatActivity() {
 //                PackageManager.PERMISSION_DENIED
 //    }
 
-    //初始化下拉列表
+
+    //更新下拉列表
     @SuppressLint("Range")
-    private fun initSpinner(){
+    private fun updateSpinner(){
         val spinner : Spinner = findViewById(R.id.group_name_spinner)
         var list: ArrayList<String> = arrayListOf<String>()
         list.add("请选择分组")
