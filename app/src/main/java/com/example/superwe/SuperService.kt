@@ -206,8 +206,12 @@ class SuperService : AccessibilityService() {
                             val rootNode = rootInActiveWindow
                             val hongBaoList = rootNode.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/b47")
                             if(hongBaoList.size>0){
-                                Thread.sleep(300)
-                                hongBaoList.get(hongBaoList.size-1).performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                                for(luckyMoney in hongBaoList){
+                                    val opened = luckyMoney.findAccessibilityNodeInfosByText("已领取")
+                                    if(opened.size==0){
+                                        luckyMoney.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                                    }
+                                }
                             }
                         }
                     }
