@@ -32,6 +32,7 @@ class ActionAdapter (private val actions:List<Action>,private val context : Cont
         holder.btnRepeat.setOnClickListener {
             val actions : MutableMap<Int,Action>  = Hawk.get(Constant.ACTIONS)
             Hawk.put(Constant.READY,actions[action.id])
+            println("actionId :" + action.id)
             Hawk.put(Constant.REPEAT_ACTION,true)
             Hawk.put(Constant.DISPOSABLE_ACTION,true)
             val intent = Intent("com.example.superwe.gap")

@@ -190,7 +190,11 @@ class ControlActivity : AppCompatActivity() {
             else{
                 Hawk.put(Constant.ADDING_FRIENDS_INTO_GROUP,true)
                 Hawk.put(Constant.DISPOSABLE_ACTION,true)
-                val intent = packageManager.getLaunchIntentForPackage("com.tencent.mm")
+                val intent = Intent(Intent.ACTION_MAIN)
+                val cmp = ComponentName("com.tencent.mm","com.tencent.mm.ui.LauncherUI")
+                intent.addCategory(Intent.CATEGORY_LAUNCHER)
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                intent.component = cmp
                 startActivity(intent)
             }
         }
@@ -202,12 +206,14 @@ class ControlActivity : AppCompatActivity() {
             setCancelable(false)
             setPositiveButton("保存") { dialog, which ->
                 val actions : MutableMap<Int,Action> = Hawk.get(Constant.ACTIONS)
-                val action = Action(editText.text.toString(),Hawk.get(Constant.WATCHER))
+                println(actions)
+                val action = Action(editText.text.toString(),SuperService.watcher)
                 actions.put(action.id,action)
                 Hawk.put(Constant.ACTIONS,actions)
-                Hawk.put(Constant.WATCHER,arrayListOf<Pair<String?,String?>>())
+                SuperService.watcher = arrayListOf()
             }
             setNegativeButton("取消") { _, _ ->
+                SuperService.watcher = arrayListOf()
             }
         }
         val dialog : AlertDialog = alertDialog.create()
@@ -215,6 +221,7 @@ class ControlActivity : AppCompatActivity() {
         btnFinishRecord.setOnClickListener {
             Hawk.put(Constant.REPEAT_ACTION,false)
             Hawk.put(Constant.RECORD_ACTION,false)
+            Hawk.put(Constant.DISPOSABLE_ACTION,false)
             editText.text.clear()
             dialog.show()
         }
@@ -302,6 +309,7 @@ class ControlActivity : AppCompatActivity() {
             intent.component = cmp
             Hawk.put(Constant.RECORD_ACTION,true)
             Hawk.put(Constant.DISPOSABLE_ACTION,true)
+            SuperService.watcher = arrayListOf()
             startActivity(intent)
         }
 
@@ -399,7 +407,11 @@ class ControlActivity : AppCompatActivity() {
                     })
                     .setOnClickListener(R.id.icon3, object : XToast.OnClickListener<View?> {
                         override fun onClick(toast: XToast<*>, view: View?) {
-                            val intent = packageManager.getLaunchIntentForPackage("com.tencent.mm")
+                            val intent = Intent(Intent.ACTION_MAIN)
+                            val cmp = ComponentName("com.tencent.mm","com.tencent.mm.ui.LauncherUI")
+                            intent.addCategory(Intent.CATEGORY_LAUNCHER)
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            intent.component = cmp
                             Hawk.put(Constant.RECORD_ACTION, true)
                             toast.cancel()
                             startActivity(intent)
@@ -493,7 +505,11 @@ class ControlActivity : AppCompatActivity() {
             }
             Hawk.put(Constant.ADDING_FRIENDS_INTO_GROUP,true)
             Hawk.put(Constant.DISPOSABLE_ACTION,true)
-            val intent = packageManager.getLaunchIntentForPackage("com.tencent.mm")
+            val intent = Intent(Intent.ACTION_MAIN)
+            val cmp = ComponentName("com.tencent.mm","com.tencent.mm.ui.LauncherUI")
+            intent.addCategory(Intent.CATEGORY_LAUNCHER)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            intent.component = cmp
             startActivity(intent)
         }
     }
