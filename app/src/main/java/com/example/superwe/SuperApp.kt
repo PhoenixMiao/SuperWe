@@ -29,7 +29,6 @@ class SuperApp : Application() {
         Hawk.put(Constant.GROUP_CHARGE,false)
         Hawk.put(Constant.RECORD_ACTION,false)
         Hawk.put(Constant.REPEAT_ACTION,false)
-        Hawk.put(Constant.WATCHER,arrayListOf<Pair<String?,String?>>())
         Hawk.put(Constant.ADDING_FRIENDS_INTO_GROUP,false)
         Hawk.put(Constant.AUTO_RECEIVE_LUCKY_MONEY,false)
         Hawk.put(Constant.AUTO_ZAN,false)

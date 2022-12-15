@@ -33,8 +33,6 @@ class Constant {
         val ACTIONS = "actions"
         val READY = "ready"
 
-        val WATCHER = "watcher"
-
         val ANOTHER_AUTO_ZAN = "another_auto_zan"
 
 
